@@ -1,4 +1,4 @@
-# CMPS4490_proj/README.md
+
 Noah Malleaux
 Isaiah Malleaux
 
@@ -6,7 +6,7 @@ Github terminal guide:
 
 git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
 
-git clone https://github.com/nhmllx/CMPS4490_proj.git
+git clone https://github.com/nhmllx/game.git
 
 git log --oneline-- 
 
@@ -18,5 +18,5 @@ git push
 
 git commit 
 
-git pull https://github.com/nhmllx/CMPS4490_proj.git -b main
+git pull https://github.com/nhmllx/game.git -b main
 

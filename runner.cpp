@@ -66,8 +66,8 @@ class Image {
     sprite("imgs/runner.png"),
     clouds("imgs/back.png"),
     tv("imgs/tv.png"),
-    title("ce.png"),
-    name("squid.png");
+    title("imgs/ce.png"),
+    name("imgs/squid.png");
 
 struct Vector {
     float x,y,z;
@@ -118,10 +118,12 @@ class Global {
         float w;
         float dir;
         int inside;
+        //[----------IMAGE ID's------------]
         unsigned int texid;
         unsigned int roadid;
         unsigned int spriteid;
         unsigned int tvid;
+        unsigned int ttid;
         Flt gravity;
         int frameno;
         int jump;
@@ -280,10 +282,15 @@ int main()
             timeCopy(&fpsStart, &fpsCurr);
         }
 
+
         //physics();         //moved to a thread
         if (g.flag == 1)
         {
-        render();            //draw things
+            renderTitle();            //draw things
+        }
+        if (g.flag == 0)
+        {
+            render();
         }
         x11.swapBuffers();   //make video memory visible
         usleep(1000);        //pause to let X11 work better
@@ -398,17 +405,20 @@ void X11_wrapper::check_mouse(XEvent *e)
     }
     if (e->type == ButtonPress) {
         if (e->xbutton.button==1) {
-            //Left button was pressed.
-            int y = g.yres - e->xbutton.y;
-            int x = e->xbutton.x;
-            if (x >= g.pos[0]-g.w && x <= g.pos[0]+g.w) {
-                if (y >= g.pos[1]-g.w && y <= g.pos[1]+g.w) {
-                    g.inside++;
-                    printf("hits: %i\n", g.inside);
-                }
+
+            //printf("look: %i\n", savex);
+            if (savex > g.xres*0.445 && savex < g.xres*0.605){
+                printf("look: %i\n", savex);
+                // x11.cleanupXWindows();
+                //     render();
+                printf("hi");
+                // XDestroyWindow(x11.dpy, x11.win);
+                g.flag = 0;
+
             }
-            return;
+            //Left button is down
         }
+
         if (e->xbutton.button==3) {
             //Right button was pressed.
             return;
@@ -497,7 +507,7 @@ void init_opengl(void)
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
 
-    //background flowers
+    //--------------------------background pizza---------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.texid);
     glBindTexture(GL_TEXTURE_2D, g.texid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -505,12 +515,21 @@ void init_opengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, clouds.width, clouds.height, 0,
             GL_RGB, GL_UNSIGNED_BYTE, clouds.data);
 
+    //--------------------------purple floor---------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.roadid);
     glBindTexture(GL_TEXTURE_2D, g.roadid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, road.width, road.height, 0,
             GL_RGB, GL_UNSIGNED_BYTE, road.data);
+    //-----title scween------------------------------------------------------------------------------------------------------------------------
+    glGenTextures(1, &g.ttid);
+    glBindTexture(GL_TEXTURE_2D, g.ttid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, title.width, title.height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, title.data);
+    //-----------------------------------------------------------------------------------------------------------------------------
     //runner sprite
     //make a new data stream, with 4 color components
     //add an alpha channel
@@ -727,6 +746,19 @@ void render()
 
 void renderTitle()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
+    //clouds
+    glColor3ub(255, 255, 255);
+    glBindTexture(GL_TEXTURE_2D, g.ttid);
+    static float camerax = 0.0f;
+    glBegin(GL_QUADS);
+    glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+    glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+    glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+    glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+   // camerax += 0.00275;
 }
 
 

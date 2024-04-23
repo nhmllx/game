@@ -65,7 +65,9 @@ class Image {
 } road("imgs/ground.png"),
     sprite("imgs/runner.png"),
     clouds("imgs/back.png"),
-    tv("imgs/tv.png");
+    tv("imgs/tv.png"),
+    title("ce.png"),
+    name("squid.png");
 
 struct Vector {
     float x,y,z;
@@ -127,6 +129,7 @@ class Global {
         int show_boxes;
         int vsync; // :o
         int fps;
+        int flag;
 
         Global() {
             memset(keys, 0, 0xffff);
@@ -146,6 +149,7 @@ class Global {
             pause = 0;
             show_boxes = 0;
             vsync = 1;
+            flag = 1;
         }
 } g;
 
@@ -171,6 +175,8 @@ class X11_wrapper {
 void init_opengl(void);
 void physics(void);
 void render(void);
+void renderTitle(void);
+
 
 void *spriteThread(void *arg)
 {
@@ -275,7 +281,10 @@ int main()
         }
 
         //physics();         //moved to a thread
+        if (g.flag == 1)
+        {
         render();            //draw things
+        }
         x11.swapBuffers();   //make video memory visible
         usleep(1000);        //pause to let X11 work better
     }
@@ -612,7 +621,7 @@ void render()
     r.left = 10;
     r.center = 0;
     int score = 25;
-    ggprint8b(&r, 0, 0x00ffffff, "speed : %i\n", score*2);
+    ggprint8b(&r, 16, 0x00ffffff, "speed : %i\n", score*2);
     ggprint8b(&r, 16, 0x00ffff00, "vsync: %s", ((g.vsync)?"ON":"OFF"));
     ggprint8b(&r, 16, 0x00ffff00, "fps: %i", g.fps);
     printf("FRAMES: %i\n", g.fps );
@@ -715,5 +724,9 @@ void render()
 
 
 
+
+void renderTitle()
+{
+}
 
 

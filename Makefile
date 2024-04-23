@@ -9,6 +9,6 @@ runner: runner.cpp timers.cpp
 		-lGL -lGLU -lX11 -lpthread -o runner
 
 clean:
-	rm -f background a.out
+	rm -f background a.out runner
 
 

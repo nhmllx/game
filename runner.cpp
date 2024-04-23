@@ -67,7 +67,8 @@ class Image {
     clouds("imgs/back.png"),
     tv("imgs/tv.png"),
     title("imgs/ce.png"),
-    name("imgs/squid.png");
+    name("imgs/squid.png"),
+    punch("imgs/punch.png");
 
 struct Vector {
     float x,y,z;
@@ -124,6 +125,7 @@ class Global {
         unsigned int spriteid;
         unsigned int tvid;
         unsigned int ttid;
+        unsigned int punchid;
         Flt gravity;
         int frameno;
         int jump;
@@ -575,6 +577,28 @@ void init_opengl(void)
                  (unsigned char)tv.data[offset+2] != 0) ? 255 : 0;
         }
     }
+    //-------------punch-----------------------------------------------------------------------------------------------------------------------
+    unsigned char *data3 = new unsigned char [punch.width * punch.height * 4];
+    for (int i=0; i<punch.height; i++) {
+        for (int j=0; j<punch.width; j++) {
+            int offset  = i*punch.width*3 + j*3;
+            int offset2 = i*punch.width*4 + j*4;
+            data3[offset2+0] = punch.data[offset+0];
+            data3[offset2+1] = punch.data[offset+1];
+            data3[offset2+2] = punch.data[offset+2];
+            data3[offset2+3] =
+                ((unsigned char)punch.data[offset+0] != 255 ||
+                 (unsigned char)punch.data[offset+1] != 0 ||
+                 (unsigned char)punch.data[offset+2] != 0) ? 255 : 0;
+        }
+    }
+    glGenTextures(1, &g.spriteid);
+    glBindTexture(GL_TEXTURE_2D, g.spriteid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sprite.width, sprite.height,
+            0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
+    delete [] data2;
     //------------------------------------------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.tvid);
     glBindTexture(GL_TEXTURE_2D, g.tvid);

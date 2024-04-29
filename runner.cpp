@@ -658,7 +658,7 @@ void render()
     //Draw man.
     glPushMatrix();
     glColor3ub(255, 255, 255);
-    glTranslatef(g.xres/2, g.yres/2, 0.0f);
+    glTranslatef(g.xres/3.2, g.yres/3.3, 0.0f);
     //           x         y         z
     //
     //set alpha test
@@ -677,8 +677,8 @@ void render()
     //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
     float ty1 = 1.0f ;
     float ty2 = ty1 + 1;
-    float w = g.xres/4;
-    float h = g.yres/3;
+    float w = g.xres/10;//size w
+    float h = g.yres/8;//size h
     glBegin(GL_QUADS);
     glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
     glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);

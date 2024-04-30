@@ -67,7 +67,10 @@ class Image {
     sprite("imgs/runner.png"),
     clouds("imgs/back.png"),
     tv("imgs/tv.png"),
-    title("imgs/ce.png");
+    title("imgs/ce.png"),
+    punch("imgs/punch.ppm"),
+   // punch("imgs/pawnch.png"),
+    idle("imgs/idle.png");
 
 struct Vector {
     float x,y,z;
@@ -124,6 +127,8 @@ class Global {
         unsigned int spriteid;
         unsigned int tvid;
         unsigned int ttid;
+        unsigned int idleid;
+        unsigned int punchid;
         //unsigned int nameid;
 
         Flt gravity;
@@ -137,8 +142,8 @@ class Global {
 
         Global() {
             memset(keys, 0, 0xffff);
-            xres = 400;
-            yres = 200;
+            xres = 800;
+            yres = 400;
             sxres = (double)xres;
             syres = (double)yres;
             //box
@@ -148,7 +153,7 @@ class Global {
             dir = 5.0f;
             inside = 0;
             gravity = 20.0;
-            frameno = 1;
+            frameno = 0;
             jump = 0;
             pause = 0;
             show_boxes = 0;
@@ -212,9 +217,10 @@ void *spriteThread(void *arg)
             //enough time has passed
             if (!g.pause) {
                 ++g.frameno;
+              //  g.frameno = g.frameno + 0.5;
             }
-            if (g.frameno > 3)
-                g.frameno = 1;
+            if (g.frameno > 21)//total frame number
+                g.frameno = 0;
             timeCopy(&start, &end);
         }
         usleep(1000);        //pause to let X11 work better
@@ -534,11 +540,11 @@ void init_opengl(void)
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----title name------------------------------------------------------------------------------------------------------------------------
     /*glGenTextures(1, &g.nameid);
-    glBindTexture(GL_TEXTURE_2D, g.nameid);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, name.width, name.height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, name.data);*/
+      glBindTexture(GL_TEXTURE_2D, g.nameid);
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+      glTexImage2D(GL_TEXTURE_2D, 0, 3, name.width, name.height, 0,
+      GL_RGB, GL_UNSIGNED_BYTE, name.data);*/
     //-----------------------------------------------------------------------------------------------------------------------------
     //runner sprite
     //make a new data stream, with 4 color components
@@ -575,7 +581,7 @@ void init_opengl(void)
     for (int i=0; i<tv.height; i++) {
         for (int j=0; j<tv.width; j++) {
             int offset  = i*tv.width*3 + j*3;
-            int offset2 = i*sprite.width*4 + j*4;
+            int offset2 = i*tv.width*4 + j*4;
             data4[offset2+0] = tv.data[offset+0];
             data4[offset2+1] = tv.data[offset+1];
             data4[offset2+2] = tv.data[offset+2];
@@ -585,7 +591,6 @@ void init_opengl(void)
                  (unsigned char)tv.data[offset+2] != 0) ? 255 : 0;
         }
     }
-    //------------------------------------------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.tvid);
     glBindTexture(GL_TEXTURE_2D, g.tvid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
@@ -594,6 +599,51 @@ void init_opengl(void)
             0, GL_RGBA, GL_UNSIGNED_BYTE, data4);
     delete [] data4;
     //------------------------------------------------------------------------------------------------------------------------------------
+    unsigned char *data5 = new unsigned char [idle.width * idle.height * 4];
+    for (int i=0; i<idle.height; i++) {
+        for (int j=0; j<idle.width; j++) {
+            int offset  = i*idle.width*3 + j*3;
+            int offset2 = i*idle.width*4 + j*4;
+            data5[offset2+0] = idle.data[offset+0];
+            data5[offset2+1] = idle.data[offset+1];
+            data5[offset2+2] = idle.data[offset+2];
+            data5[offset2+3] =
+                ((unsigned char)idle.data[offset+0] != 255 ||
+                 (unsigned char)idle.data[offset+1] != 0 ||
+                 (unsigned char)idle.data[offset+2] != 0) ? 255 : 0;
+        }
+    }
+    glGenTextures(1, &g.idleid);
+    glBindTexture(GL_TEXTURE_2D, g.idleid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, idle.width, idle.height,
+            0, GL_RGBA, GL_UNSIGNED_BYTE, data5);
+    delete [] data5;
+    //------------------------------------------------------------------------------------------------------------------------------------
+    unsigned char *data6 = new unsigned char [punch.width * punch.height * 4];
+    for (int i=0; i<punch.height; i++) {
+        for (int j=0; j<punch.width; j++) {
+            int offset  = i*punch.width*3 + j*3;
+            int offset2 = i*punch.width*4 + j*4;
+            data6[offset2+0] = punch.data[offset+0];
+            data6[offset2+1] = punch.data[offset+1];
+            data6[offset2+2] = punch.data[offset+2];
+            data6[offset2+3] =
+                ((unsigned char)punch.data[offset+0] != 205 ||
+                 (unsigned char)punch.data[offset+1] != 0 ||
+                 (unsigned char)punch.data[offset+2] != 0) ? 255 : 0;
+        }
+    }
+    glGenTextures(1, &g.punchid);
+    glBindTexture(GL_TEXTURE_2D, g.punchid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, punch.width, punch.height,
+            0, GL_RGBA, GL_UNSIGNED_BYTE, data6);
+    delete [] data6;
+    //-----------------------------------------------------------------------------------------------------------------------------------
+    
 }
 
 #define GRAVITY 0.6
@@ -617,10 +667,43 @@ void physics()
 }
 //variables for manipulating and controlling sprites
 double mover = 3.2; //influence x pos
-int moving = 0;
+int moving = 0;//moving flag
 double shake = 3.3; //influence y pos
+double rshake = 1.0;//shakes the road
+int shakecount = 22;//shake duration
+int shaker = 0;//shake flag
+
 void render()
 {
+// mover can scroll the sprite, shake can screen shake the sprite
+//[SHAKER CODE]-----
+    if (g.keys[XK_w] == 1)
+    {
+        shaker = 1;
+    }
+    if (shaker == 1)
+    {
+        if (shakecount >= 0){
+            int rando = rand() % 2;
+            if (rando == 0){
+                shake = 3.45;
+                rshake = 0.975;
+            }
+            if (rando == 1){
+                shake = 3.15;
+                rshake = 1.025;
+            }
+            shakecount--;
+        }
+        if (shakecount == 0){shaker = 0;}
+    }
+    else {
+        shake = 3.3;
+        rshake = 1.0;
+        shakecount = 22;
+    }
+//[END OF SHAKER CODE]-----
+//
     glClear(GL_COLOR_BUFFER_BIT);
     //clouds
     glColor3ub(255, 255, 255);
@@ -633,30 +716,31 @@ void render()
     glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
-   if (g.keys[XK_d] == 1){
-    camerax += 0.00275;
-   }
+    if (g.keys[XK_d] == 1){
+        camerax += 0.00275;
+    }
+    if (g.keys[XK_a] == 1){
+        camerax -= 0.00275;
+    }
 
-   if (g.keys[XK_a] == 1){
-    camerax -= 0.00275;
-   }
+
     //road
     glColor3ub(200,200,200);
     glBindTexture(GL_TEXTURE_2D, g.roadid);
     static float xr = 0.0f;
     glBegin(GL_QUADS);
-    glTexCoord2f(xr+0, 1); glVertex2i(0,      0);
-    glTexCoord2f(xr+0, 0); glVertex2i(0,      g.yres/4.6);
-    glTexCoord2f(xr+1, 0); glVertex2i(g.xres, g.yres/4.6);
-    glTexCoord2f(xr+1, 1); glVertex2i(g.xres, 0);
+    glTexCoord2f(xr+0, 1); glVertex2i(0,      0*rshake);
+    glTexCoord2f(xr+0, 0); glVertex2i(0,      (g.yres/4.6) * rshake);
+    glTexCoord2f(xr+1, 0); glVertex2i(g.xres, (g.yres/4.6) * rshake);
+    glTexCoord2f(xr+1, 1); glVertex2i(g.xres, 0*rshake);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
-   // if (moving == 1){
-   if (g.keys[XK_d] == 1){
-    xr += 0.055;
+   // move the road, giving the illusion of th player sprite controling movement
+    if (g.keys[XK_d] == 1){//move road right
+        xr += 0.055;
     }
-   if (g.keys[XK_a] == 1){
-    xr -= 0.055;
+    if (g.keys[XK_a] == 1){//road left
+        xr -= 0.055;
     }
 
     Rect r;
@@ -671,44 +755,13 @@ void render()
     //printf("VSYNC: %s\n", ((g.vsync) ? "ON":"OFF"));
     //
     //Draw man.
+//----------------------------------------------------------------------------------------------------
+//if(moving == 1){
+if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
     glPushMatrix();
     glColor3ub(255, 255, 255);
-    //double mover = 3.2;
-    //------------------CONTROL CODE FOR SPRITE--------------------------;
- //  if (g.keys[XK_d] == 1)
- //  {
-   //    moving = 1;
-     //  if (mover > 0.0){
-     //  mover = mover - 0.02;
-    //   }
-  //     if (mover <= 0.0) {
-    //       mover = 0.2;
-  //     }
- //  }
-   //uselessmoving = 0;
-       //if (mover >= g.xres)
-     //  {
-       //     mover = g.xres-20;
-      // }
-    // mover will scroll the sprite, shake will screen shake the sprite
-    
-    if (g.keys[XK_w] == 1)
-    {
-        int rando = rand() % 2;
-        if (rando == 0){
-            shake = 3.6;
-        }
-        if (rando == 1){
-            shake = 3.1;
-        }
-    }
-    else {
-        shake = 3.3;
-    }
-    printf("yress: %f\n", (g.yres/3.3) * shake );
-    glTranslatef((g.xres/mover), (g.yres/shake), 0.0f);
+    glTranslatef((g.xres/3.2), (g.yres/shake), 0.0f);
     //           x         y         z
-    //
     //set alpha test
     glEnable(GL_ALPHA_TEST);
     //transparent if alpha value is greater than 0.0
@@ -727,18 +780,17 @@ void render()
     float h = g.yres/8;//size h
     glBegin(GL_QUADS);
 
-   //if (g.keys[XK_d] == 1){
-    if (g.keys[XK_a] == 0){
-    glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
-    glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
-    glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
-    glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
+    if (g.keys[XK_a] == 0){//face sprite right
+        glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
+        glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
+        glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
+        glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
     }
-    if (g.keys[XK_a] == 1){
-    glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
-    glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
-    glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
-    glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
+    if (g.keys[XK_a] == 1){//face sprite left
+        glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
+        glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
+        glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
+        glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
     }
 
     glEnd();
@@ -756,7 +808,78 @@ void render()
         glEnd();
     }
     glPopMatrix();
-    //Draw mtv--------------------------
+}
+//----------------------------------------------------------------------------------------------------
+//if(moving == 0){
+if (g.keys[XK_d] == 0 && g.keys[XK_a] == 0){
+    glPushMatrix();
+    glColor3ub(255, 255, 255);
+    glTranslatef((g.xres/3.2), (g.yres/shake), 0.0f);
+   // glTranslatef((g.xres - 55), (g.yres/shake), 0.0f);
+    //           x         y         z
+    //set alpha test
+    glEnable(GL_ALPHA_TEST);
+    //transparent if alpha value is greater than 0.0
+    glAlphaFunc(GL_GREATER, 0.0f);
+    //Set 4-channels of color intensity
+    glColor4ub(255,255,255,255);
+    //
+    glBindTexture(GL_TEXTURE_2D, g.idleid);
+    //make texture coordinates based on frame number.
+   // float itx1 = 0.0f + (float)((g.frameno-1) % 21) * ((2100.0f/21.0f)/2100.0f);
+   // float itx2 = itx1 + ((2100.0f/21.0f)/2100.0f);
+   float spriteSheetWidth = 1100.0f;
+float spriteWidth = spriteSheetWidth / 11.0f;
+//float itx1 = 0.0;
+//float itx2 = 0.0;
+//if (g.frameno > 21){
+//    itx1 = 0.0f + (float)((g.frameno + 1) % 21) * (spriteWidth / spriteSheetWidth);
+// itx2 = itx1 + (spriteWidth / spriteSheetWidth);
+//}
+//else{
+//float itx1 = 0.0f + (float)(((g.frameno - 1)*0.5f) % 11) * (spriteWidth / spriteSheetWidth);
+float itx1 = 0.0f + (float)((g.frameno - 1) % 11) * (spriteWidth / spriteSheetWidth);
+usleep(20000);
+float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
+//}
+    //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+    float ity1 = 1.0f ;
+    float ity2 = ity1 + 1;
+    float iw = g.xres/10;//size w
+    float ih = g.yres/8;//size h
+    glBegin(GL_QUADS);
+
+    if (g.keys[XK_a] == 0){//face sprite right
+        glTexCoord2f(itx1, ity2); glVertex2f(-iw, -ih);
+        glTexCoord2f(itx1, ity1); glVertex2f(-iw,  ih);
+        glTexCoord2f(itx2, ity1); glVertex2f( iw,  ih);
+        glTexCoord2f(itx2, ity2); glVertex2f( iw, -ih);
+    }
+    if (g.keys[XK_a] == 1){//face sprite left
+        glTexCoord2f(itx1, ity2); glVertex2f(iw, -ih);
+        glTexCoord2f(itx1, ity1); glVertex2f(iw,  ih);
+        glTexCoord2f(itx2, ity1); glVertex2f( -iw,  ih);
+        glTexCoord2f(itx2, ity2); glVertex2f( -iw, -ih);
+    }
+
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+    //
+    if (g.show_boxes) {
+        //Show the sprite's bounding box
+        glColor3ub(255, 255, 0);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(-iw, -ih);
+        glVertex2f(-iw,  ih);
+        glVertex2f( iw,  ih);
+        glVertex2f( iw, -ih);
+        glEnd();
+    }
+    glPopMatrix();
+}
+//----------------------------------------------------------------------------------------------------
+//for the tv
     glPushMatrix();
     glColor3ub(255, 255, 255);
     glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
@@ -804,14 +927,14 @@ void render()
     }
     glPopMatrix();
     //i}
-    }
+}
 
 
 
 
 
 void renderTitle()
-{
+{/*
     glClear(GL_COLOR_BUFFER_BIT);
     //clouds
     glColor3ub(255, 255, 255);
@@ -824,8 +947,92 @@ void renderTitle()
     glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
-   // camerax += 0.00275;
+    // camerax += 0.00275;
+*/
 
+
+    
+    glPushMatrix();
+    glColor3ub(255, 255, 255);
+  //  glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+    //           x         y         z
+    //
+    //set alpha test
+    glEnable(GL_ALPHA_TEST);
+    //transparent if alpha value is greater than 0.0
+    glAlphaFunc(GL_GREATER, 0.0f);
+    //Set 4-channels of color intensity
+    glColor4ub(255,255,255,255);
+    //
+    glBindTexture(GL_TEXTURE_2D, g.punchid);
+    //make texture coordinates based on frame number.
+   // float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+    //float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
+    //	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+    //	float tx22 = tx11 + (1.0f/3.0f);
+
+//    int totalFrames = 20; // Total number of frames in the sprite sheet
+//float spriteSheetWidth = 1800.0f;
+//float spriteWidth = spriteSheetWidth / totalFrames;
+    //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+    //	float ty11 = 0.0f ;
+    //	float ty22 =  1.0f;
+  //  int totalFrames = 20; // Total number of frames in the sprite sheet
+//float spriteSheetWidth = 19200.0f;
+//float spriteWidth = spriteSheetWidth / totalFrames;
+
+// Calculate the texture coordinates based on the frame number
+//float tx11 = (float)((g.frameno - 1) % totalFrames) * (spriteWidth / spriteSheetWidth);
+//float tx22 = tx11 + (spriteWidth / spriteSheetWidth);
+  //  float ty11 = 1.0f ;
+  //  float ty22 = ty11 + 1;
+  //
+  //
+  int numRows = 4; // Total number of rows
+int numColumns = 5; // Total number of columns
+int totalFrames = numRows * numColumns; // Total number of frames in the sprite sheet
+
+float spriteSheetWidth = 1800.0f;
+float spriteSheetHeight = 400.0f;
+float spriteWidth = spriteSheetWidth / numColumns;
+float spriteHeight = spriteSheetHeight / numRows;
+
+// Calculate the frame number within the total frames in the sprite sheet
+int frameWithinSheet = (g.frameno - 1) % totalFrames;
+
+// Calculate the row and column index based on the frame number
+int rowIndex = frameWithinSheet / numColumns;
+int columnIndex = frameWithinSheet % numColumns;
+
+// Calculate the texture coordinates based on the row and column index
+float tx11 = (float)columnIndex * (spriteWidth / spriteSheetWidth);
+float ty11 = 1.0f - ((float)rowIndex + 1.0f) * (spriteHeight / spriteSheetHeight);
+float tx22 = tx11 + (spriteWidth / spriteSheetWidth);
+float ty22 = ty11 + (spriteHeight / spriteSheetHeight);
+  //
+  
+    float ww = g.xres;
+    float hh = g.yres;
+    glBegin(GL_QUADS);
+    glTexCoord2f(tx11, ty22); glVertex2f(0, 0);
+    glTexCoord2f(tx11, ty11); glVertex2f(0,  hh);
+    glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+    glTexCoord2f(tx22, ty22); glVertex2f( ww, 0);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+    //
+    if (g.show_boxes) {
+        //Show the sprite's bounding box
+        glColor3ub(255, 255, 0);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(0, 0);
+        glVertex2f(0,  hh);
+        glVertex2f( ww,  hh);
+        glVertex2f( ww, 0);
+        glEnd();
+    }
+    glPopMatrix();
 }
 
 

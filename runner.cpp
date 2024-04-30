@@ -23,11 +23,108 @@ using namespace std;
 #include "fonts.h"
 #include <pthread.h>
 #include <random>
+#include <fcntl.h>
+#include <sys/stat.h>
+//#ifdef USE_OPENAL_SOUND
+//#include </usr/include/AL/alut.h>
+//#endif //USE_OPENAL_SOUND
 
 
 
+#ifdef USE_SOUND
+#include </usr/include/AL/alut.h>
+class Openal {
+    ALuint alBuffer[2];
+    ALuint alSource[2];
+    public:
+    Openal() {
+	//Get started right here.
+	alutInit(0, NULL);
+	if (alGetError() != AL_NO_ERROR) {
+	    printf("ERROR: alutInit()\n");
+	}
+	//Clear error state.
+	alGetError();
+	//
+	//Setup the listener.
+	//Forward and up vectors are used.
+	//The person listening is facing forward toward the sound.
+	//The first 3 components of vec are 0,0,1
+	//this means that the person is facing x=0, y=0, z=1, forward.
+	//The second 3 components means that up is x=0,y=1,z=0, straight up!
+	float vec[6] = {0.0f,0.0f,1.0f, 0.0f,1.0f,0.0f};
+	alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+	alListenerfv(AL_ORIENTATION, vec);
+	alListenerf(AL_GAIN, 1.0f);
+	//
+	//Buffers hold the sound information.
+	alBuffer[0] = alutCreateBufferFromFile("./test.wav");
+	//let's create a looping sound.
+	//alBuffer[1] = alutCreateBufferFromFile("./737engine.wav");
+	alBuffer[1] = alutCreateBufferFromFile("./test.wav");
 
+	//
+	//Source refers to the sound.
+	//Generate 2 sources, and store in the matching buffers.
+	alGenSources(2, alSource);
+	alSourcei(alSource[0], AL_BUFFER, alBuffer[0]);
+	alSourcei(alSource[1], AL_BUFFER, alBuffer[1]);
+	//
+	//FirstSet volume and pitch to normal, no looping of sound.
+	alSourcef(alSource[0], AL_GAIN, 1.0f);
+	alSourcef(alSource[0], AL_PITCH, 1.0f);
+	alSourcei(alSource[0], AL_LOOPING, AL_FALSE);
+	//alSourcei(alSource[0], AL_LOOPING, AL_TRUE);
+	if (alGetError() != AL_NO_ERROR) {
+	    printf("ERROR: setting source\n");
+	}
+	alSourcef(alSource[1], AL_GAIN, 0.5f);
+	alSourcef(alSource[1], AL_PITCH, 1.0f);
+	alSourcei(alSource[1], AL_LOOPING, AL_TRUE);
+	if (alGetError() != AL_NO_ERROR) {
+	    printf("ERROR: setting source\n");
+	}
+    }
+    void playSound(1)
+    {
+	alSourcePlay(alSource[1]);
+	for (int i=0; i<1000; i++) {
+	    //      alSourcePlay(alSource[0]);
+	    usleep(500000);
+	}
+    }
+    ~Openal() {
+	//Cleanup.
+	//First delete the sources.
+	alDeleteSources(1, &alSource[0]);
+	alDeleteSources(1, &alSource[1]);
+	//Delete the buffers.
+	alDeleteBuffers(1, &alBuffer[0]);
+	alDeleteBuffers(1, &alBuffer[1]);
+	//
+	//Close out OpenAL itself.
+	//Get active context.
+	ALCcontext *Context = alcGetCurrentContext();
+	//Get device for active context.
+	ALCdevice *Device = alcGetContextsDevice(Context);
+	//Disable context.
+	alcMakeContextCurrent(NULL);
+	//Release context(s).
+	alcDestroyContext(Context);
+	//Close device.
+	alcCloseDevice(Device);
+    }
+}oal;
 
+#endif //USE_OPENAL_SOUND
+void playSound(int s) {
+#ifdef USE_SOUND
+    oal.playSound(s);
+    printf("sound");
+#else
+    if (s) {}
+#endif
+}
 
 class Image {
     public:
@@ -675,6 +772,8 @@ int shaker = 0;//shake flag
 
 void render()
 {
+    playSound(1);
+
 // mover can scroll the sprite, shake can screen shake the sprite
 //[SHAKER CODE]-----
     if (g.keys[XK_w] == 1)
@@ -934,7 +1033,7 @@ float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
 
 
 void renderTitle()
-{/*
+{
     glClear(GL_COLOR_BUFFER_BIT);
     //clouds
     glColor3ub(255, 255, 255);
@@ -948,11 +1047,11 @@ void renderTitle()
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     // camerax += 0.00275;
-*/
+
 
 
     
-    glPushMatrix();
+/*    glPushMatrix();
     glColor3ub(255, 255, 255);
   //  glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
     //           x         y         z
@@ -1032,7 +1131,7 @@ float ty22 = ty11 + (spriteHeight / spriteSheetHeight);
         glVertex2f( ww, 0);
         glEnd();
     }
-    glPopMatrix();
+    glPopMatrix();*/
 }
 
 

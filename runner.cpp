@@ -58,10 +58,10 @@ class Openal {
 	alListenerf(AL_GAIN, 1.0f);
 	//
 	//Buffers hold the sound information.
-	alBuffer[0] = alutCreateBufferFromFile("./test.wav");
+	alBuffer[0] = alutCreateBufferFromFile("./mach3.wav");
 	//let's create a looping sound.
 	//alBuffer[1] = alutCreateBufferFromFile("./737engine.wav");
-	alBuffer[1] = alutCreateBufferFromFile("./test.wav");
+	alBuffer[1] = alutCreateBufferFromFile("./mach3.wav");
 
 	//
 	//Source refers to the sound.
@@ -85,13 +85,13 @@ class Openal {
 	    printf("ERROR: setting source\n");
 	}
     }
-    void playSound(1)
+    void playSound(int i)
     {
-	alSourcePlay(alSource[1]);
-	for (int i=0; i<1000; i++) {
-	    //      alSourcePlay(alSource[0]);
-	    usleep(500000);
-	}
+	alSourcePlay(alSource[i]);
+	//	for (int i=0; i<1000; i++) {
+	//      alSourcePlay(alSource[0]);
+	//	    usleep(500000);
+    }
     }
     ~Openal() {
 	//Cleanup.
@@ -128,50 +128,50 @@ void playSound(int s) {
 
 class Image {
     public:
-        int width, height, max;
-        char *data;
-        Image() { }
-        Image(const char *fname) {
-            bool isPPM = true;
-            char str[1200];
-            char newfile[200];
-            ifstream fin;
-            char *p = strstr((char *)fname, ".ppm");
-            if (!p) {
-                //not a ppm file
-                isPPM = false;
-                strcpy(newfile, fname);
-                newfile[strlen(newfile)-4] = '\0';
-                strcat(newfile, ".ppm");
-                sprintf(str, "convert %s %s", fname, newfile);
-                system(str);
-                fin.open(newfile);
-            } else {
-                fin.open(fname);
-            }
-            char p6[10];
-            fin >> p6;
-            fin >> width >> height;
-            fin >> max;
-            data = new char [width * height * 3];
-            fin.read(data, 1);
-            fin.read(data, width * height * 3);
-            fin.close();
-            if (!isPPM)
-                unlink(newfile);
-        }
+	int width, height, max;
+	char *data;
+	Image() { }
+	Image(const char *fname) {
+	    bool isPPM = true;
+	    char str[1200];
+	    char newfile[200];
+	    ifstream fin;
+	    char *p = strstr((char *)fname, ".ppm");
+	    if (!p) {
+		//not a ppm file
+		isPPM = false;
+		strcpy(newfile, fname);
+		newfile[strlen(newfile)-4] = '\0';
+		strcat(newfile, ".ppm");
+		sprintf(str, "convert %s %s", fname, newfile);
+		system(str);
+		fin.open(newfile);
+	    } else {
+		fin.open(fname);
+	    }
+	    char p6[10];
+	    fin >> p6;
+	    fin >> width >> height;
+	    fin >> max;
+	    data = new char [width * height * 3];
+	    fin.read(data, 1);
+	    fin.read(data, width * height * 3);
+	    fin.close();
+	    if (!isPPM)
+		unlink(newfile);
+	}
 } road("imgs/ground.png"),
     sprite("imgs/runner.png"),
     clouds("imgs/back.png"),
     tv("imgs/tv.png"),
     title("imgs/ce.png"),
     punch("imgs/punch.ppm"),
-   // punch("imgs/pawnch.png"),
+    // punch("imgs/pawnch.png"),
     idle("imgs/idle.png");
 
-struct Vector {
-    float x,y,z;
-};
+    struct Vector {
+	float x,y,z;
+    };
 
 typedef double Flt;
 struct Box {
@@ -180,101 +180,101 @@ struct Box {
 //a game object
 class Player {
     public:
-        Flt pos[3]; //vector
-        Flt vel[3]; //vector
-        float w, h;
-        Box box[5];
-        unsigned int color;
-        bool alive_or_dead;
-        Flt mass;
-        Player() {
-            w = h = 4.0;
-            pos[0] = 1.0;
-            pos[1] = 200.0;
-            vel[0] = 4.0;
-            vel[1] = 0.0;
-        }
-        Player(int x, int y) {
-            w = h = 4.0;
-            pos[0] = x;
-            pos[1] = y;
-            vel[0] = 0.0;
-            vel[1] = 0.0;
-        }
-        void set_dimensions(int x, int y) {
-            w = (float)x * 0.05;
-            h = w;
-        }
+	Flt pos[3]; //vector
+	Flt vel[3]; //vector
+	float w, h;
+	Box box[5];
+	unsigned int color;
+	bool alive_or_dead;
+	Flt mass;
+	Player() {
+	    w = h = 4.0;
+	    pos[0] = 1.0;
+	    pos[1] = 200.0;
+	    vel[0] = 4.0;
+	    vel[1] = 0.0;
+	}
+	Player(int x, int y) {
+	    w = h = 4.0;
+	    pos[0] = x;
+	    pos[1] = y;
+	    vel[0] = 0.0;
+	    vel[1] = 0.0;
+	}
+	void set_dimensions(int x, int y) {
+	    w = (float)x * 0.05;
+	    h = w;
+	}
 } player(200,100);
 
 class Global {
     public:
-        int xres, yres;
-        double sxres, syres;
-        //char keys[65536];
-        char keys[ 0xffff ];
-        //the box components
-        float pos[2];
-        float w;
-        float dir;
-        int inside;
-        //[----------IMAGE ID's------------]
-        unsigned int texid;
-        unsigned int roadid;
-        unsigned int spriteid;
-        unsigned int tvid;
-        unsigned int ttid;
-        unsigned int idleid;
-        unsigned int punchid;
-        //unsigned int nameid;
+	int xres, yres;
+	double sxres, syres;
+	//char keys[65536];
+	char keys[ 0xffff ];
+	//the box components
+	float pos[2];
+	float w;
+	float dir;
+	int inside;
+	//[----------IMAGE ID's------------]
+	unsigned int texid;
+	unsigned int roadid;
+	unsigned int spriteid;
+	unsigned int tvid;
+	unsigned int ttid;
+	unsigned int idleid;
+	unsigned int punchid;
+	//unsigned int nameid;
 
-        Flt gravity;
-        int frameno;
-        int jump;
-        int pause;
-        int show_boxes;
-        int vsync; // :o
-        int fps;
-        int flag;
+	Flt gravity;
+	int frameno;
+	int jump;
+	int pause;
+	int show_boxes;
+	int vsync; // :o
+	int fps;
+	int flag;
 
-        Global() {
-            memset(keys, 0, 0xffff);
-            xres = 800;
-            yres = 400;
-            sxres = (double)xres;
-            syres = (double)yres;
-            //box
-            w = 20.0f;
-            pos[0] = 0.0f + w;
-            pos[1] = yres/2.0f;
-            dir = 5.0f;
-            inside = 0;
-            gravity = 20.0;
-            frameno = 0;
-            jump = 0;
-            pause = 0;
-            show_boxes = 0;
-            vsync = 1;
-            flag = 1;
-        }
+	Global() {
+	    memset(keys, 0, 0xffff);
+	    xres = 800;
+	    yres = 400;
+	    sxres = (double)xres;
+	    syres = (double)yres;
+	    //box
+	    w = 20.0f;
+	    pos[0] = 0.0f + w;
+	    pos[1] = yres/2.0f;
+	    dir = 5.0f;
+	    inside = 0;
+	    gravity = 20.0;
+	    frameno = 0;
+	    jump = 0;
+	    pause = 0;
+	    show_boxes = 0;
+	    vsync = 1;
+	    flag = 1;
+	}
 } g;
 
 class X11_wrapper {
     private:
-        Display *dpy;
-        Window win;
-        GLXContext glc;
+	Display *dpy;
+	Window win;
+	GLXContext glc;
     public:
-        ~X11_wrapper();
-        X11_wrapper();
-        void set_title();
-        bool getXPending();
-        XEvent getXNextEvent();
-        void swapBuffers();
-        void reshape_window(int width, int height);
-        void check_resize(XEvent *e);
-        void check_mouse(XEvent *e);
-        int check_keys(XEvent *e);
+	~X11_wrapper();
+	X11_wrapper();
+	void set_title();
+	bool getXPending();
+	XEvent getXNextEvent();
+	void swapBuffers();
+	void reshape_window(int width, int height);
+	void check_resize(XEvent *e);
+	void check_mouse(XEvent *e);
+	int check_keys(XEvent *e);
 } x11;
 
 //Function prototypes
@@ -301,26 +301,26 @@ void *spriteThread(void *arg)
     clock_gettime(CLOCK_REALTIME, &start);
     double diff;
     while (1) {
-        //if some amount of time has passed, change the frame number.
-        clock_gettime(CLOCK_REALTIME, &pend);
-        diff = timeDiff(&pstart, &pend);
-        if (diff >= (1.0 / 60.0)) {
-            physics();  //move things
-            timeCopy(&pstart, &pend);
-        }
-        clock_gettime(CLOCK_REALTIME, &end);
-        diff = timeDiff(&start, &end);
-        if (diff >= 0.043) {
-            //enough time has passed
-            if (!g.pause) {
-                ++g.frameno;
-              //  g.frameno = g.frameno + 0.5;
-            }
-            if (g.frameno > 21)//total frame number
-                g.frameno = 0;
-            timeCopy(&start, &end);
-        }
-        usleep(1000);        //pause to let X11 work better
+	//if some amount of time has passed, change the frame number.
+	clock_gettime(CLOCK_REALTIME, &pend);
+	diff = timeDiff(&pstart, &pend);
+	if (diff >= (1.0 / 60.0)) {
+	    physics();  //move things
+	    timeCopy(&pstart, &pend);
+	}
+	clock_gettime(CLOCK_REALTIME, &end);
+	diff = timeDiff(&start, &end);
+	if (diff >= 0.043) {
+	    //enough time has passed
+	    if (!g.pause) {
+		++g.frameno;
+		//  g.frameno = g.frameno + 0.5;
+	    }
+	    if (g.frameno > 21)//total frame number
+		g.frameno = 0;
+	    timeCopy(&start, &end);
+	}
+	usleep(1000);        //pause to let X11 work better
     }
     return (void *)0;
 }
@@ -341,9 +341,9 @@ int main()
     char str[100];
     int n = 0;
     for (int i=0; i<5; i++) {
-        str[n] = 'd' + i;
-        n++;
-        str[n] = '\0';
+	str[n] = 'd' + i;
+	n++;
+	str[n] = '\0';
     }
     cout << str << endl;
 
@@ -363,42 +363,42 @@ int main()
 
     int done = 0;
     while (!done) {
-        //process events...
-        while (x11.getXPending()) {
-            XEvent e = x11.getXNextEvent();
-            x11.check_resize(&e);
-            x11.check_mouse(&e);
-            done = x11.check_keys(&e);
-        }
-        clock_gettime(CLOCK_REALTIME, &timeCurrent);
-        timeSpan = timeDiff(&timeStart, &timeCurrent);
-        timeCopy(&timeStart, &timeCurrent);
-        physicsCountdown += timeSpan;
-        //         while (physicsCountdown >= physicsRate) {
-        //                   physics();
-        //                     physicsCountdown -= physicsRate;
-        //                     //                }
-        ++fps;
-        clock_gettime(CLOCK_REALTIME, &fpsCurr);
-        double diff = timeDiff(&fpsStart, &fpsCurr);
-        if (diff >= 1.0) {
-            g.fps = fps;
-            fps = 0;
-            timeCopy(&fpsStart, &fpsCurr);
-        }
+	//process events...
+	while (x11.getXPending()) {
+	    XEvent e = x11.getXNextEvent();
+	    x11.check_resize(&e);
+	    x11.check_mouse(&e);
+	    done = x11.check_keys(&e);
+	}
+	clock_gettime(CLOCK_REALTIME, &timeCurrent);
+	timeSpan = timeDiff(&timeStart, &timeCurrent);
+	timeCopy(&timeStart, &timeCurrent);
+	physicsCountdown += timeSpan;
+	//         while (physicsCountdown >= physicsRate) {
+	//                   physics();
+	//                     physicsCountdown -= physicsRate;
+	//                     //                }
+	++fps;
+	clock_gettime(CLOCK_REALTIME, &fpsCurr);
+	double diff = timeDiff(&fpsStart, &fpsCurr);
+	if (diff >= 1.0) {
+	    g.fps = fps;
+	    fps = 0;
+	    timeCopy(&fpsStart, &fpsCurr);
+	}
 
 
-        //physics();         //moved to a thread
-        if (g.flag == 1)
-        {
-            renderTitle();            //draw things
-        }
-        if (g.flag == 0)
-        {
-            render();
-        }
-        x11.swapBuffers();   //make video memory visible
-        usleep(1000);        //pause to let X11 work better
+	//physics();         //moved to a thread
+	if (g.flag == 1)
+	{
+	    renderTitle();            //draw things
+	}
+	if (g.flag == 0)
+	{
+	    render();
+	}
+	x11.swapBuffers();   //make video memory visible
+	usleep(1000);        //pause to let X11 work better
     }
     cleanup_fonts();
     return 0;
@@ -416,25 +416,25 @@ X11_wrapper::X11_wrapper()
     int w = g.xres, h = g.yres;
     dpy = XOpenDisplay(NULL);
     if (dpy == NULL) {
-        cout << "\n\tcannot connect to X server\n" << endl;
-        exit(EXIT_FAILURE);
+	cout << "\n\tcannot connect to X server\n" << endl;
+	exit(EXIT_FAILURE);
     }
     Window root = DefaultRootWindow(dpy);
     XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
     if (vi == NULL) {
-        cout << "\n\tno appropriate visual found\n" << endl;
-        exit(EXIT_FAILURE);
+	cout << "\n\tno appropriate visual found\n" << endl;
+	exit(EXIT_FAILURE);
     } 
     Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
     XSetWindowAttributes swa;
     swa.colormap = cmap;
     swa.event_mask =
-        ExposureMask | KeyPressMask | KeyReleaseMask |
-        ButtonPress | ButtonReleaseMask |
-        PointerMotionMask |
-        StructureNotifyMask | SubstructureNotifyMask;
+	ExposureMask | KeyPressMask | KeyReleaseMask |
+	ButtonPress | ButtonReleaseMask |
+	PointerMotionMask |
+	StructureNotifyMask | SubstructureNotifyMask;
     win = XCreateWindow(dpy, root, 0, 0, w, h, 0, vi->depth,
-            InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+	    InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
     set_title();
     glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
     glXMakeCurrent(dpy, win, glc);
@@ -483,11 +483,11 @@ void X11_wrapper::check_resize(XEvent *e)
     //The ConfigureNotify is sent by the
     //server if the window is resized.
     if (e->type != ConfigureNotify)
-        return;
+	return;
     XConfigureEvent xce = e->xconfigure;
     if (xce.width != g.xres || xce.height != g.yres) {
-        //Window size did change.
-        reshape_window(xce.width, xce.height);
+	//Window size did change.
+	reshape_window(xce.width, xce.height);
     }
 }
 //-----------------------------------------------------------------------------
@@ -499,98 +499,99 @@ void X11_wrapper::check_mouse(XEvent *e)
 
     //Weed out non-mouse events
     if (e->type != ButtonRelease &&
-            e->type != ButtonPress &&
-            e->type != MotionNotify) {
-        //This is not a mouse event that we care about.
-        return;
+	    e->type != ButtonPress &&
+	    e->type != MotionNotify) {
+	//This is not a mouse event that we care about.
+	return;
     }
     //
     if (e->type == ButtonRelease) {
-        return;
+	return;
     }
     if (e->type == ButtonPress) {
-        if (e->xbutton.button==1) {
+	if (e->xbutton.button==1) {
 
-            //printf("look: %i\n", savex);
-            if (savex > g.xres*0.445 && savex < g.xres*0.605){
-                printf("look: %i\n", savex);
-                // x11.cleanupXWindows();
-                //     render();
-                printf("hi");
-                // XDestroyWindow(x11.dpy, x11.win);
-                g.flag = 0;
+	    //printf("look: %i\n", savex);
+	    if (savex > g.xres*0.445 && savex < g.xres*0.605){
+		printf("look: %i\n", savex);
+		// x11.cleanupXWindows();
+		//     render();
+		printf("hi");
+		// XDestroyWindow(x11.dpy, x11.win);
+		g.flag = 0;
 
-            }
-            //Left button is down
-        }
+	    }
+	    //Left button is down
+	}
 
-        if (e->xbutton.button==3) {
-            //Right button was pressed.
-            return;
-        }
+	if (e->xbutton.button==3) {
+	    //Right button was pressed.
+	    return;
+	}
     }
     if (e->type == MotionNotify) {
-        //The mouse moved!
-        if (savex != e->xbutton.x || savey != e->xbutton.y) {
-            savex = e->xbutton.x;
-            savey = e->xbutton.y;
-            //Code placed here will execute whenever the mouse moves.
+	//The mouse moved!
+	if (savex != e->xbutton.x || savey != e->xbutton.y) {
+	    savex = e->xbutton.x;
+	    savey = e->xbutton.y;
+	    //Code placed here will execute whenever the mouse moves.
 
-        }
+	}
     }
 }
 
 int X11_wrapper::check_keys(XEvent *e)
 {
     if (e->type != KeyPress && e->type != KeyRelease)
-        return 0;
+	return 0;
     int key = XLookupKeysym(&e->xkey, 0);
     if (e->type == KeyPress)   g.keys[key] = 1;
     if (e->type == KeyRelease) g.keys[key] = 0;
     if (e->type == KeyPress) {
-        switch (key) {
-            case XK_1:
-                //Key 1 was pressed
-                break;
-            case XK_p:
-                g.pause ^= 1;
-                break;
-            case XK_b:
-                g.show_boxes = !g.show_boxes;
-                //g.show_boxes = ~g.show_boxes;
-                break;
-            case XK_v: {
-                           g.vsync ^= 1;
-                           //vertical synchronization
-                           //https://github.com/godotengine/godot/blob/master/platform/
-                           //x11/context_gl_x11.cpp
-                           static PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
-                           glXSwapIntervalEXT =
-                               (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB(
-                                       (const GLubyte *)"glXSwapIntervalEXT");
-                           GLXDrawable drawable = glXGetCurrentDrawable();
-                           if (g.vsync) {
-                               glXSwapIntervalEXT(x11.dpy, drawable, 1);
-                           } else {
-                               glXSwapIntervalEXT(x11.dpy, drawable, 0);
-                           }
-                           std::cout << "VVVVVVV" <<std::endl;
-                           break;
-                       }
+	switch (key) {
+	    case XK_1:
+		playSound(0);
+		//Key 1 was pressed
+		break;
+	    case XK_p:
+		g.pause ^= 1;
+		break;
+	    case XK_b:
+		g.show_boxes = !g.show_boxes;
+		//g.show_boxes = ~g.show_boxes;
+		break;
+	    case XK_v: {
+			   g.vsync ^= 1;
+			   //vertical synchronization
+			   //https://github.com/godotengine/godot/blob/master/platform/
+			   //x11/context_gl_x11.cpp
+			   static PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
+			   glXSwapIntervalEXT =
+			       (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB(
+				       (const GLubyte *)"glXSwapIntervalEXT");
+			   GLXDrawable drawable = glXGetCurrentDrawable();
+			   if (g.vsync) {
+			       glXSwapIntervalEXT(x11.dpy, drawable, 1);
+			   } else {
+			       glXSwapIntervalEXT(x11.dpy, drawable, 0);
+			   }
+			   std::cout << "VVVVVVV" <<std::endl;
+			   break;
+		       }
 
-                       //case XK_j:
-                       //	//jump
-                       //	g.jump = 1;
-                       //	//g.player.vel[1] += 10;
-                       //	break;
-            case XK_Return:
-                       //jump
-                       g.jump = 1;
-                       break;
-            case XK_Escape:
-                       //Escape key was pressed
-                       return 1;
-        }
+		       //case XK_j:
+		       //	//jump
+		       //	g.jump = 1;
+		       //	//g.player.vel[1] += 10;
+		       //	break;
+	    case XK_Return:
+		       //jump
+		       g.jump = 1;
+		       break;
+	    case XK_Escape:
+		       //Escape key was pressed
+		       return 1;
+	}
     }
     return 0;
 }
@@ -618,7 +619,7 @@ void init_opengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, clouds.width, clouds.height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, clouds.data);
+	    GL_RGB, GL_UNSIGNED_BYTE, clouds.data);
 
     //--------------------------purple floor---------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.roadid);
@@ -626,14 +627,14 @@ void init_opengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, road.width, road.height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, road.data);
+	    GL_RGB, GL_UNSIGNED_BYTE, road.data);
     //-----title scween------------------------------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.ttid);
     glBindTexture(GL_TEXTURE_2D, g.ttid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, title.width, title.height, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, title.data);
+	    GL_RGB, GL_UNSIGNED_BYTE, title.data);
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----title name------------------------------------------------------------------------------------------------------------------------
     /*glGenTextures(1, &g.nameid);
@@ -654,93 +655,93 @@ void init_opengl(void)
     //--------------------------sprite-------------------------------------------------------------------------------------------------------
     unsigned char *data2 = new unsigned char [sprite.width * sprite.height * 4];
     for (int i=0; i<sprite.height; i++) {
-        for (int j=0; j<sprite.width; j++) {
-            int offset  = i*sprite.width*3 + j*3;
-            int offset2 = i*sprite.width*4 + j*4;
-            data2[offset2+0] = sprite.data[offset+0];
-            data2[offset2+1] = sprite.data[offset+1];
-            data2[offset2+2] = sprite.data[offset+2];
-            data2[offset2+3] =
-                ((unsigned char)sprite.data[offset+0] != 255 ||
-                 (unsigned char)sprite.data[offset+1] != 0 ||
-                 (unsigned char)sprite.data[offset+2] != 0) ? 255 : 0;
-        }
+	for (int j=0; j<sprite.width; j++) {
+	    int offset  = i*sprite.width*3 + j*3;
+	    int offset2 = i*sprite.width*4 + j*4;
+	    data2[offset2+0] = sprite.data[offset+0];
+	    data2[offset2+1] = sprite.data[offset+1];
+	    data2[offset2+2] = sprite.data[offset+2];
+	    data2[offset2+3] =
+		((unsigned char)sprite.data[offset+0] != 255 ||
+		 (unsigned char)sprite.data[offset+1] != 0 ||
+		 (unsigned char)sprite.data[offset+2] != 0) ? 255 : 0;
+	}
     }
     glGenTextures(1, &g.spriteid);
     glBindTexture(GL_TEXTURE_2D, g.spriteid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sprite.width, sprite.height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data2);
     delete [] data2;
     //--------------------------------TV-------------------------------------------------------------------------------------------------
     unsigned char *data4 = new unsigned char [tv.width * tv.height * 4];
     for (int i=0; i<tv.height; i++) {
-        for (int j=0; j<tv.width; j++) {
-            int offset  = i*tv.width*3 + j*3;
-            int offset2 = i*tv.width*4 + j*4;
-            data4[offset2+0] = tv.data[offset+0];
-            data4[offset2+1] = tv.data[offset+1];
-            data4[offset2+2] = tv.data[offset+2];
-            data4[offset2+3] =
-                ((unsigned char)tv.data[offset+0] != 255 ||
-                 (unsigned char)tv.data[offset+1] != 0 ||
-                 (unsigned char)tv.data[offset+2] != 0) ? 255 : 0;
-        }
+	for (int j=0; j<tv.width; j++) {
+	    int offset  = i*tv.width*3 + j*3;
+	    int offset2 = i*tv.width*4 + j*4;
+	    data4[offset2+0] = tv.data[offset+0];
+	    data4[offset2+1] = tv.data[offset+1];
+	    data4[offset2+2] = tv.data[offset+2];
+	    data4[offset2+3] =
+		((unsigned char)tv.data[offset+0] != 255 ||
+		 (unsigned char)tv.data[offset+1] != 0 ||
+		 (unsigned char)tv.data[offset+2] != 0) ? 255 : 0;
+	}
     }
     glGenTextures(1, &g.tvid);
     glBindTexture(GL_TEXTURE_2D, g.tvid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tv.width, tv.height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, data4);
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data4);
     delete [] data4;
     //------------------------------------------------------------------------------------------------------------------------------------
     unsigned char *data5 = new unsigned char [idle.width * idle.height * 4];
     for (int i=0; i<idle.height; i++) {
-        for (int j=0; j<idle.width; j++) {
-            int offset  = i*idle.width*3 + j*3;
-            int offset2 = i*idle.width*4 + j*4;
-            data5[offset2+0] = idle.data[offset+0];
-            data5[offset2+1] = idle.data[offset+1];
-            data5[offset2+2] = idle.data[offset+2];
-            data5[offset2+3] =
-                ((unsigned char)idle.data[offset+0] != 255 ||
-                 (unsigned char)idle.data[offset+1] != 0 ||
-                 (unsigned char)idle.data[offset+2] != 0) ? 255 : 0;
-        }
+	for (int j=0; j<idle.width; j++) {
+	    int offset  = i*idle.width*3 + j*3;
+	    int offset2 = i*idle.width*4 + j*4;
+	    data5[offset2+0] = idle.data[offset+0];
+	    data5[offset2+1] = idle.data[offset+1];
+	    data5[offset2+2] = idle.data[offset+2];
+	    data5[offset2+3] =
+		((unsigned char)idle.data[offset+0] != 255 ||
+		 (unsigned char)idle.data[offset+1] != 0 ||
+		 (unsigned char)idle.data[offset+2] != 0) ? 255 : 0;
+	}
     }
     glGenTextures(1, &g.idleid);
     glBindTexture(GL_TEXTURE_2D, g.idleid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, idle.width, idle.height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, data5);
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data5);
     delete [] data5;
     //------------------------------------------------------------------------------------------------------------------------------------
     unsigned char *data6 = new unsigned char [punch.width * punch.height * 4];
     for (int i=0; i<punch.height; i++) {
-        for (int j=0; j<punch.width; j++) {
-            int offset  = i*punch.width*3 + j*3;
-            int offset2 = i*punch.width*4 + j*4;
-            data6[offset2+0] = punch.data[offset+0];
-            data6[offset2+1] = punch.data[offset+1];
-            data6[offset2+2] = punch.data[offset+2];
-            data6[offset2+3] =
-                ((unsigned char)punch.data[offset+0] != 205 ||
-                 (unsigned char)punch.data[offset+1] != 0 ||
-                 (unsigned char)punch.data[offset+2] != 0) ? 255 : 0;
-        }
+	for (int j=0; j<punch.width; j++) {
+	    int offset  = i*punch.width*3 + j*3;
+	    int offset2 = i*punch.width*4 + j*4;
+	    data6[offset2+0] = punch.data[offset+0];
+	    data6[offset2+1] = punch.data[offset+1];
+	    data6[offset2+2] = punch.data[offset+2];
+	    data6[offset2+3] =
+		((unsigned char)punch.data[offset+0] != 205 ||
+		 (unsigned char)punch.data[offset+1] != 0 ||
+		 (unsigned char)punch.data[offset+2] != 0) ? 255 : 0;
+	}
     }
     glGenTextures(1, &g.punchid);
     glBindTexture(GL_TEXTURE_2D, g.punchid);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, punch.width, punch.height,
-            0, GL_RGBA, GL_UNSIGNED_BYTE, data6);
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data6);
     delete [] data6;
     //-----------------------------------------------------------------------------------------------------------------------------------
-    
+
 }
 
 #define GRAVITY 0.6
@@ -748,18 +749,18 @@ void init_opengl(void)
 void physics()
 {
     if (g.keys[XK_j] == 1) {
-        player.vel[1] += 0.5;
-        player.vel[0] += 0.2;
+	player.vel[1] += 0.5;
+	player.vel[0] += 0.2;
     }
     player.vel[1] -= GRAVITY;
     player.pos[0] += player.vel[0];
     player.pos[1] += player.vel[1];
     if (player.pos[1] < 60) {
-        player.pos[1] = 60;
-        player.vel[1] = 0.0;
+	player.pos[1] = 60;
+	player.vel[1] = 0.0;
     }
     if (player.pos[0] > g.xres) {
-        player.vel[0] -= 1.0;
+	player.vel[0] -= 1.0;
     }
 }
 //variables for manipulating and controlling sprites
@@ -769,40 +770,49 @@ double shake = 3.3; //influence y pos
 double rshake = 1.0;//shakes the road
 int shakecount = 22;//shake duration
 int shaker = 0;//shake flag
+double jump = 0;
+double jumpflag = 0;
+int jumping = 0;
+double posy = g.yres/3.2;
 
+
+//double jumper(double x){
+//  x=(x+9)/1.07;
+//return x;
+//}
 void render()
 {
-    playSound(1);
+    //playSound(1);
 
-// mover can scroll the sprite, shake can screen shake the sprite
-//[SHAKER CODE]-----
-    if (g.keys[XK_w] == 1)
+    // mover can scroll the sprite, shake can screen shake the sprite
+    //[SHAKER CODE]-----
+    if (g.keys[XK_t] == 1)
     {
-        shaker = 1;
+	shaker = 1;
     }
     if (shaker == 1)
     {
-        if (shakecount >= 0){
-            int rando = rand() % 2;
-            if (rando == 0){
-                shake = 3.45;
-                rshake = 0.975;
-            }
-            if (rando == 1){
-                shake = 3.15;
-                rshake = 1.025;
-            }
-            shakecount--;
-        }
-        if (shakecount == 0){shaker = 0;}
+	if (shakecount >= 0){
+	    int rando = rand() % 2;
+	    if (rando == 0){
+		shake = 3.45;
+		rshake = 0.975;
+	    }
+	    if (rando == 1){
+		shake = 3.15;
+		rshake = 1.025;
+	    }
+	    shakecount--;
+	}
+	if (shakecount == 0){shaker = 0;}
     }
     else {
-        shake = 3.3;
-        rshake = 1.0;
-        shakecount = 22;
+	shake = 3.3;
+	rshake = 1.0;
+	shakecount = 22;
     }
-//[END OF SHAKER CODE]-----
-//
+    //[END OF SHAKER CODE]-----
+    //
     glClear(GL_COLOR_BUFFER_BIT);
     //clouds
     glColor3ub(255, 255, 255);
@@ -816,10 +826,10 @@ void render()
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     if (g.keys[XK_d] == 1){
-        camerax += 0.00275;
+	camerax += 0.00275;
     }
     if (g.keys[XK_a] == 1){
-        camerax -= 0.00275;
+	camerax -= 0.00275;
     }
 
 
@@ -834,12 +844,13 @@ void render()
     glTexCoord2f(xr+1, 1); glVertex2i(g.xres, 0*rshake);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
-   // move the road, giving the illusion of th player sprite controling movement
+    // move the road, giving the illusion of th player sprite controling movement
     if (g.keys[XK_d] == 1){//move road right
-        xr += 0.055;
+	xr += 0.055;
+	playSound(0);
     }
     if (g.keys[XK_a] == 1){//road left
-        xr -= 0.055;
+	xr -= 0.055;
     }
 
     Rect r;
@@ -853,14 +864,47 @@ void render()
     //printf("FRAMES: %i\n", g.fps );
     //printf("VSYNC: %s\n", ((g.vsync) ? "ON":"OFF"));
     //
-    //Draw man.
+
+
+    //if (g.keys[XK_space] == 1){
+    if (g.keys[XK_w] == 1){
+	jumping = 1;
+	if( jumping == 1){
+	    if (jumpflag < 110){
+		jump = ((jump + 9)/1.075);
+		jumpflag = ((jumpflag + 9)/1.075);
+		// jumper(jump);
+	    }
+	    if(jumpflag >= 110 && ((g.yres/shake)+jump <= 373)){
+		//jump = 0;
+		jump = ((jump - 5));
+	    }
+	    if (jump <= 0){
+		jump = 0;
+	    }
+	}
+    }
+    jumping = 0;
+    //if (jump >= 110.99){
+    //jump = jump - 3;
+//}
+printf("%f\n", jump);
+//Draw man.
 //----------------------------------------------------------------------------------------------------
 //if(moving == 1){
 if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
     glPushMatrix();
     glColor3ub(255, 255, 255);
-    glTranslatef((g.xres/3.2), (g.yres/shake), 0.0f);
+
+
+    //if (g.keys[XK_space] == 1){
+    //if (g.keys[XK_w] == 1){
+    //   jump += 0.5;
+    //}
+    // printf("%f\n", jump);
+    glTranslatef((g.xres/3.2), (g.yres/shake)+jump, 0.0f);
     //           x         y         z
+    //}
     //set alpha test
     glEnable(GL_ALPHA_TEST);
     //transparent if alpha value is greater than 0.0
@@ -880,16 +924,16 @@ if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
     glBegin(GL_QUADS);
 
     if (g.keys[XK_a] == 0){//face sprite right
-        glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
-        glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
-        glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
-        glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
+	glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
+	glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
+	glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
+	glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
     }
     if (g.keys[XK_a] == 1){//face sprite left
-        glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
-        glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
-        glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
-        glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
+	glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
+	glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
+	glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
+	glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
     }
 
     glEnd();
@@ -897,14 +941,14 @@ if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
     glDisable(GL_ALPHA_TEST);
     //
     if (g.show_boxes) {
-        //Show the sprite's bounding box
-        glColor3ub(255, 255, 0);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(-w, -h);
-        glVertex2f(-w,  h);
-        glVertex2f( w,  h);
-        glVertex2f( w, -h);
-        glEnd();
+	//Show the sprite's bounding box
+	glColor3ub(255, 255, 0);
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(-w, -h);
+	glVertex2f(-w,  h);
+	glVertex2f( w,  h);
+	glVertex2f( w, -h);
+	glEnd();
     }
     glPopMatrix();
 }
@@ -913,8 +957,8 @@ if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
 if (g.keys[XK_d] == 0 && g.keys[XK_a] == 0){
     glPushMatrix();
     glColor3ub(255, 255, 255);
-    glTranslatef((g.xres/3.2), (g.yres/shake), 0.0f);
-   // glTranslatef((g.xres - 55), (g.yres/shake), 0.0f);
+    glTranslatef((g.xres/3.2), (g.yres/shake) + jump, 0.0f);
+    // glTranslatef((g.xres - 55), (g.yres/shake), 0.0f);
     //           x         y         z
     //set alpha test
     glEnable(GL_ALPHA_TEST);
@@ -925,22 +969,22 @@ if (g.keys[XK_d] == 0 && g.keys[XK_a] == 0){
     //
     glBindTexture(GL_TEXTURE_2D, g.idleid);
     //make texture coordinates based on frame number.
-   // float itx1 = 0.0f + (float)((g.frameno-1) % 21) * ((2100.0f/21.0f)/2100.0f);
-   // float itx2 = itx1 + ((2100.0f/21.0f)/2100.0f);
-   float spriteSheetWidth = 1100.0f;
-float spriteWidth = spriteSheetWidth / 11.0f;
-//float itx1 = 0.0;
-//float itx2 = 0.0;
-//if (g.frameno > 21){
-//    itx1 = 0.0f + (float)((g.frameno + 1) % 21) * (spriteWidth / spriteSheetWidth);
-// itx2 = itx1 + (spriteWidth / spriteSheetWidth);
-//}
-//else{
-//float itx1 = 0.0f + (float)(((g.frameno - 1)*0.5f) % 11) * (spriteWidth / spriteSheetWidth);
-float itx1 = 0.0f + (float)((g.frameno - 1) % 11) * (spriteWidth / spriteSheetWidth);
-usleep(20000);
-float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
-//}
+    // float itx1 = 0.0f + (float)((g.frameno-1) % 21) * ((2100.0f/21.0f)/2100.0f);
+    // float itx2 = itx1 + ((2100.0f/21.0f)/2100.0f);
+    float spriteSheetWidth = 1100.0f;
+    float spriteWidth = spriteSheetWidth / 11.0f;
+    //float itx1 = 0.0;
+    //float itx2 = 0.0;
+    //if (g.frameno > 21){
+    //    itx1 = 0.0f + (float)((g.frameno + 1) % 21) * (spriteWidth / spriteSheetWidth);
+    // itx2 = itx1 + (spriteWidth / spriteSheetWidth);
+    //}
+    //else{
+    //float itx1 = 0.0f + (float)(((g.frameno - 1)*0.5f) % 11) * (spriteWidth / spriteSheetWidth);
+    float itx1 = 0.0f + (float)((g.frameno - 1) % 11) * (spriteWidth / spriteSheetWidth);
+    usleep(20000);
+    float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
+    //}
     //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
     float ity1 = 1.0f ;
     float ity2 = ity1 + 1;
@@ -949,16 +993,16 @@ float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
     glBegin(GL_QUADS);
 
     if (g.keys[XK_a] == 0){//face sprite right
-        glTexCoord2f(itx1, ity2); glVertex2f(-iw, -ih);
-        glTexCoord2f(itx1, ity1); glVertex2f(-iw,  ih);
-        glTexCoord2f(itx2, ity1); glVertex2f( iw,  ih);
-        glTexCoord2f(itx2, ity2); glVertex2f( iw, -ih);
+	glTexCoord2f(itx1, ity2); glVertex2f(-iw, -ih);
+	glTexCoord2f(itx1, ity1); glVertex2f(-iw,  ih);
+	glTexCoord2f(itx2, ity1); glVertex2f( iw,  ih);
+	glTexCoord2f(itx2, ity2); glVertex2f( iw, -ih);
     }
     if (g.keys[XK_a] == 1){//face sprite left
-        glTexCoord2f(itx1, ity2); glVertex2f(iw, -ih);
-        glTexCoord2f(itx1, ity1); glVertex2f(iw,  ih);
-        glTexCoord2f(itx2, ity1); glVertex2f( -iw,  ih);
-        glTexCoord2f(itx2, ity2); glVertex2f( -iw, -ih);
+	glTexCoord2f(itx1, ity2); glVertex2f(iw, -ih);
+	glTexCoord2f(itx1, ity1); glVertex2f(iw,  ih);
+	glTexCoord2f(itx2, ity1); glVertex2f( -iw,  ih);
+	glTexCoord2f(itx2, ity2); glVertex2f( -iw, -ih);
     }
 
     glEnd();
@@ -966,66 +1010,66 @@ float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
     glDisable(GL_ALPHA_TEST);
     //
     if (g.show_boxes) {
-        //Show the sprite's bounding box
-        glColor3ub(255, 255, 0);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(-iw, -ih);
-        glVertex2f(-iw,  ih);
-        glVertex2f( iw,  ih);
-        glVertex2f( iw, -ih);
-        glEnd();
+	//Show the sprite's bounding box
+	glColor3ub(255, 255, 0);
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(-iw, -ih);
+	glVertex2f(-iw,  ih);
+	glVertex2f( iw,  ih);
+	glVertex2f( iw, -ih);
+	glEnd();
     }
     glPopMatrix();
 }
 //----------------------------------------------------------------------------------------------------
 //for the tv
-    glPushMatrix();
-    glColor3ub(255, 255, 255);
-    glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
-    //           x         y         z
-    //
-    //set alpha test
-    glEnable(GL_ALPHA_TEST);
-    //transparent if alpha value is greater than 0.0
-    glAlphaFunc(GL_GREATER, 0.0f);
-    //Set 4-channels of color intensity
-    glColor4ub(255,255,255,255);
-    //
-    glBindTexture(GL_TEXTURE_2D, g.tvid);
-    //make texture coordinates based on frame number.
-    float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
-    float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
-    //	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
-    //	float tx22 = tx11 + (1.0f/3.0f);
+glPushMatrix();
+glColor3ub(255, 255, 255);
+glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+//           x         y         z
+//
+//set alpha test
+glEnable(GL_ALPHA_TEST);
+//transparent if alpha value is greater than 0.0
+glAlphaFunc(GL_GREATER, 0.0f);
+//Set 4-channels of color intensity
+glColor4ub(255,255,255,255);
+//
+glBindTexture(GL_TEXTURE_2D, g.tvid);
+//make texture coordinates based on frame number.
+float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
+//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+//	float tx22 = tx11 + (1.0f/3.0f);
 
-    //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
-    //	float ty11 = 0.0f ;
-    //	float ty22 =  1.0f;
-    float ty11 = 1.0f ;
-    float ty22 = ty11 + 1;
-    float ww = g.xres/6;
-    float hh = g.yres/5;
-    glBegin(GL_QUADS);
-    glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
-    glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
-    glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
-    glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
+//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+//	float ty11 = 0.0f ;
+//	float ty22 =  1.0f;
+float ty11 = 1.0f ;
+float ty22 = ty11 + 1;
+float ww = g.xres/6;
+float hh = g.yres/5;
+glBegin(GL_QUADS);
+glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
+glEnd();
+glBindTexture(GL_TEXTURE_2D, 0);
+glDisable(GL_ALPHA_TEST);
+//
+if (g.show_boxes) {
+    //Show the sprite's bounding box
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(-ww, -hh);
+    glVertex2f(-ww,  hh);
+    glVertex2f( ww,  hh);
+    glVertex2f( ww, -hh);
     glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_ALPHA_TEST);
-    //
-    if (g.show_boxes) {
-        //Show the sprite's bounding box
-        glColor3ub(255, 255, 0);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(-ww, -hh);
-        glVertex2f(-ww,  hh);
-        glVertex2f( ww,  hh);
-        glVertex2f( ww, -hh);
-        glEnd();
-    }
-    glPopMatrix();
-    //i}
+}
+glPopMatrix();
+//i}
 }
 
 
@@ -1050,10 +1094,10 @@ void renderTitle()
 
 
 
-    
-/*    glPushMatrix();
-    glColor3ub(255, 255, 255);
-  //  glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+
+    /*    glPushMatrix();
+	  glColor3ub(255, 255, 255);
+    //  glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
     //           x         y         z
     //
     //set alpha test
@@ -1065,51 +1109,51 @@ void renderTitle()
     //
     glBindTexture(GL_TEXTURE_2D, g.punchid);
     //make texture coordinates based on frame number.
-   // float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+    // float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
     //float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
     //	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
     //	float tx22 = tx11 + (1.0f/3.0f);
 
-//    int totalFrames = 20; // Total number of frames in the sprite sheet
-//float spriteSheetWidth = 1800.0f;
-//float spriteWidth = spriteSheetWidth / totalFrames;
+    //    int totalFrames = 20; // Total number of frames in the sprite sheet
+    //float spriteSheetWidth = 1800.0f;
+    //float spriteWidth = spriteSheetWidth / totalFrames;
     //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
     //	float ty11 = 0.0f ;
     //	float ty22 =  1.0f;
-  //  int totalFrames = 20; // Total number of frames in the sprite sheet
-//float spriteSheetWidth = 19200.0f;
-//float spriteWidth = spriteSheetWidth / totalFrames;
+    //  int totalFrames = 20; // Total number of frames in the sprite sheet
+    //float spriteSheetWidth = 19200.0f;
+    //float spriteWidth = spriteSheetWidth / totalFrames;
 
-// Calculate the texture coordinates based on the frame number
-//float tx11 = (float)((g.frameno - 1) % totalFrames) * (spriteWidth / spriteSheetWidth);
-//float tx22 = tx11 + (spriteWidth / spriteSheetWidth);
-  //  float ty11 = 1.0f ;
-  //  float ty22 = ty11 + 1;
-  //
-  //
-  int numRows = 4; // Total number of rows
-int numColumns = 5; // Total number of columns
-int totalFrames = numRows * numColumns; // Total number of frames in the sprite sheet
+    // Calculate the texture coordinates based on the frame number
+    //float tx11 = (float)((g.frameno - 1) % totalFrames) * (spriteWidth / spriteSheetWidth);
+    //float tx22 = tx11 + (spriteWidth / spriteSheetWidth);
+    //  float ty11 = 1.0f ;
+    //  float ty22 = ty11 + 1;
+    //
+    //
+    int numRows = 4; // Total number of rows
+    int numColumns = 5; // Total number of columns
+    int totalFrames = numRows * numColumns; // Total number of frames in the sprite sheet
 
-float spriteSheetWidth = 1800.0f;
-float spriteSheetHeight = 400.0f;
-float spriteWidth = spriteSheetWidth / numColumns;
-float spriteHeight = spriteSheetHeight / numRows;
+    float spriteSheetWidth = 1800.0f;
+    float spriteSheetHeight = 400.0f;
+    float spriteWidth = spriteSheetWidth / numColumns;
+    float spriteHeight = spriteSheetHeight / numRows;
 
-// Calculate the frame number within the total frames in the sprite sheet
-int frameWithinSheet = (g.frameno - 1) % totalFrames;
+    // Calculate the frame number within the total frames in the sprite sheet
+    int frameWithinSheet = (g.frameno - 1) % totalFrames;
 
-// Calculate the row and column index based on the frame number
-int rowIndex = frameWithinSheet / numColumns;
-int columnIndex = frameWithinSheet % numColumns;
+    // Calculate the row and column index based on the frame number
+    int rowIndex = frameWithinSheet / numColumns;
+    int columnIndex = frameWithinSheet % numColumns;
 
-// Calculate the texture coordinates based on the row and column index
-float tx11 = (float)columnIndex * (spriteWidth / spriteSheetWidth);
-float ty11 = 1.0f - ((float)rowIndex + 1.0f) * (spriteHeight / spriteSheetHeight);
-float tx22 = tx11 + (spriteWidth / spriteSheetWidth);
-float ty22 = ty11 + (spriteHeight / spriteSheetHeight);
-  //
-  
+    // Calculate the texture coordinates based on the row and column index
+    float tx11 = (float)columnIndex * (spriteWidth / spriteSheetWidth);
+    float ty11 = 1.0f - ((float)rowIndex + 1.0f) * (spriteHeight / spriteSheetHeight);
+    float tx22 = tx11 + (spriteWidth / spriteSheetWidth);
+    float ty22 = ty11 + (spriteHeight / spriteSheetHeight);
+    //
+
     float ww = g.xres;
     float hh = g.yres;
     glBegin(GL_QUADS);
@@ -1122,16 +1166,16 @@ float ty22 = ty11 + (spriteHeight / spriteSheetHeight);
     glDisable(GL_ALPHA_TEST);
     //
     if (g.show_boxes) {
-        //Show the sprite's bounding box
-        glColor3ub(255, 255, 0);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(0, 0);
-        glVertex2f(0,  hh);
-        glVertex2f( ww,  hh);
-        glVertex2f( ww, 0);
-        glEnd();
-    }
-    glPopMatrix();*/
+    //Show the sprite's bounding box
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(0, 0);
+    glVertex2f(0,  hh);
+    glVertex2f( ww,  hh);
+    glVertex2f( ww, 0);
+    glEnd();
+}
+glPopMatrix();*/
 }
 
 

@@ -615,6 +615,8 @@ void physics()
     }
 }
 
+double mover = 3.2;
+int moving = 0;
 void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -642,7 +644,10 @@ void render()
     glTexCoord2f(xr+1, 1); glVertex2i(g.xres, 0);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
+   // if (moving == 1){
+   if (g.keys[XK_d] == 1){
     xr += 0.055;
+    }
 
     Rect r;
     r.bot = g.yres - 20;
@@ -658,7 +663,25 @@ void render()
     //Draw man.
     glPushMatrix();
     glColor3ub(255, 255, 255);
-    glTranslatef(g.xres/3.2, g.yres/3.3, 0.0f);
+    //double mover = 3.2;
+    //------------------CONTROL CODE FOR SPRITE--------------------------;
+   if (g.keys[XK_d] == 1)
+   {
+       moving = 1;
+       if (mover > 0.0){
+       mover = mover - 0.02;
+       }
+       if (mover <= 0.0) {
+           mover = 0.2;
+       }
+   }
+   //moving = 0;
+       //if (mover >= g.xres)
+     //  {
+       //     mover = g.xres-20;
+      // }
+    //glTranslatef(g.xres/mover, g.yres/3.3, 0.0f);
+    glTranslatef((g.xres/mover > g.xres) ? g.xres-20 : (g.xres/mover), g.yres/3.3, 0.0f);
     //           x         y         z
     //
     //set alpha test

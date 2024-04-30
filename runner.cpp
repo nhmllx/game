@@ -22,6 +22,7 @@ using namespace std;
 //for text on the screen
 #include "fonts.h"
 #include <pthread.h>
+#include <random>
 
 
 
@@ -614,9 +615,10 @@ void physics()
         player.vel[0] -= 1.0;
     }
 }
-
-double mover = 3.2;
+//variables for manipulating and controlling sprites
+double mover = 3.2; //influence x pos
 int moving = 0;
+double shake = 3.3; //influence y pos
 void render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -631,8 +633,13 @@ void render()
     glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
+   if (g.keys[XK_d] == 1){
     camerax += 0.00275;
+   }
 
+   if (g.keys[XK_a] == 1){
+    camerax -= 0.00275;
+   }
     //road
     glColor3ub(200,200,200);
     glBindTexture(GL_TEXTURE_2D, g.roadid);
@@ -648,6 +655,9 @@ void render()
    if (g.keys[XK_d] == 1){
     xr += 0.055;
     }
+   if (g.keys[XK_a] == 1){
+    xr -= 0.055;
+    }
 
     Rect r;
     r.bot = g.yres - 20;
@@ -657,36 +667,49 @@ void render()
     ggprint8b(&r, 16, 0x00ffffff, "speed : %i\n", score*2);
     ggprint8b(&r, 16, 0x00ffff00, "vsync: %s", ((g.vsync)?"ON":"OFF"));
     ggprint8b(&r, 16, 0x00ffff00, "fps: %i", g.fps);
-    printf("FRAMES: %i\n", g.fps );
-    printf("VSYNC: %s\n", ((g.vsync) ? "ON":"OFF"));
+    //printf("FRAMES: %i\n", g.fps );
+    //printf("VSYNC: %s\n", ((g.vsync) ? "ON":"OFF"));
     //
     //Draw man.
     glPushMatrix();
     glColor3ub(255, 255, 255);
     //double mover = 3.2;
     //------------------CONTROL CODE FOR SPRITE--------------------------;
-   if (g.keys[XK_d] == 1)
-   {
-       moving = 1;
-       if (mover > 0.0){
-       mover = mover - 0.02;
-       }
-       if (mover <= 0.0) {
-           mover = 0.2;
-       }
-   }
-   //moving = 0;
+ //  if (g.keys[XK_d] == 1)
+ //  {
+   //    moving = 1;
+     //  if (mover > 0.0){
+     //  mover = mover - 0.02;
+    //   }
+  //     if (mover <= 0.0) {
+    //       mover = 0.2;
+  //     }
+ //  }
+   //uselessmoving = 0;
        //if (mover >= g.xres)
      //  {
        //     mover = g.xres-20;
       // }
-    //glTranslatef(g.xres/mover, g.yres/3.3, 0.0f);
-    glTranslatef((g.xres/mover > g.xres) ? g.xres-20 : (g.xres/mover), g.yres/3.3, 0.0f);
+    // mover will scroll the sprite, shake will screen shake the sprite
+    
+    if (g.keys[XK_w] == 1)
+    {
+        int rando = rand() % 2;
+        if (rando == 0){
+            shake = 3.6;
+        }
+        if (rando == 1){
+            shake = 3.1;
+        }
+    }
+    else {
+        shake = 3.3;
+    }
+    printf("yress: %f\n", (g.yres/3.3) * shake );
+    glTranslatef((g.xres/mover), (g.yres/shake), 0.0f);
     //           x         y         z
     //
     //set alpha test
-    //https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/
-    //xhtml/glAlphaFunc.xml
     glEnable(GL_ALPHA_TEST);
     //transparent if alpha value is greater than 0.0
     glAlphaFunc(GL_GREATER, 0.0f);
@@ -703,10 +726,21 @@ void render()
     float w = g.xres/10;//size w
     float h = g.yres/8;//size h
     glBegin(GL_QUADS);
+
+   //if (g.keys[XK_d] == 1){
+    if (g.keys[XK_a] == 0){
     glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
     glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
     glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
     glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
+    }
+    if (g.keys[XK_a] == 1){
+    glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
+    glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
+    glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
+    glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
+    }
+
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);

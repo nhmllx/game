@@ -168,6 +168,8 @@ class Image {
     punch("imgs/punch.ppm"),
     // punch("imgs/pawnch.png"),
     idle("imgs/idle.png"),
+    boost("imgs/speed.png"),
+    ptime("imgs/ptime.png"),
     bomb("imgs/bomb.png");
 
     struct Vector {
@@ -228,6 +230,8 @@ class Global {
 	unsigned int idleid;
 	unsigned int punchid;
 	unsigned int bombid;
+	unsigned int boostid;
+	unsigned int ptimeid;
 	//unsigned int nameid;
 
 	Flt gravity;
@@ -765,6 +769,50 @@ void init_opengl(void)
 	    0, GL_RGBA, GL_UNSIGNED_BYTE, data6);
     delete [] data6;
     //-----------------------------------------------------------------------------------------------------------------------------------
+    unsigned char *data9 = new unsigned char [boost.width * boost.height * 4];
+    for (int i=0; i<boost.height; i++) {
+	for (int j=0; j<boost.width; j++) {
+	    int offset  = i*boost.width*3 + j*3;
+	    int offset2 = i*boost.width*4 + j*4;
+	    data9[offset2+0] = boost.data[offset+0];
+	    data9[offset2+1] = boost.data[offset+1];
+	    data9[offset2+2] = boost.data[offset+2];
+	    data9[offset2+3] =
+		((unsigned char)boost.data[offset+0] != 255 ||
+		 (unsigned char)boost.data[offset+1] != 0 ||
+		 (unsigned char)boost.data[offset+2] != 0) ? 255 : 0;
+	}
+    }
+    glGenTextures(1, &g.boostid);
+    glBindTexture(GL_TEXTURE_2D, g.boostid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, boost.width, boost.height,
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data9);
+    delete [] data9;
+    //-----------------------------------------------------------------------------------------------------------------------------------
+    unsigned char *data10 = new unsigned char [ptime.width * ptime.height * 4];
+    for (int i=0; i<ptime.height; i++) {
+	for (int j=0; j<ptime.width; j++) {
+	    int offset  = i*ptime.width*3 + j*3;
+	    int offset2 = i*ptime.width*4 + j*4;
+	    data10[offset2+0] = ptime.data[offset+0];
+	    data10[offset2+1] = ptime.data[offset+1];
+	    data10[offset2+2] = ptime.data[offset+2];
+	    data10[offset2+3] =
+		((unsigned char)ptime.data[offset+0] != 255 ||
+		 (unsigned char)ptime.data[offset+1] != 0 ||
+		 (unsigned char)ptime.data[offset+2] != 0) ? 255 : 0;
+	}
+    }
+    glGenTextures(1, &g.ptimeid);
+    glBindTexture(GL_TEXTURE_2D, g.ptimeid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ptime.width, ptime.height,
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data10);
+    delete [] data10;
+    //-----------------------------------------------------------------------------------------------------------------------------------
 
 }
 
@@ -798,6 +846,7 @@ double jump = 0;
 double jumpflag = 0;
 int jumping = 0;
 double posy = g.yres/3.2;
+int upp = -100;
 
 
 //double jumper(double x){
@@ -836,9 +885,9 @@ void render()
 	shakecount = 22;
     }
     //[END OF SHAKER CODE]-----
-    //
+
+    //[THE BACKGROUND]--------
     glClear(GL_COLOR_BUFFER_BIT);
-    //clouds
     glColor3ub(255, 255, 255);
     glBindTexture(GL_TEXTURE_2D, g.texid);
     static float camerax = 0.0f;
@@ -855,6 +904,7 @@ void render()
     if (g.keys[XK_a] == 1){
 	camerax -= 0.00275;
     }
+
 
 
     //road
@@ -1093,6 +1143,52 @@ if (g.show_boxes) {
     glEnd();
 }
 glPopMatrix();
+
+//PIZZA TIME-------------------------------------------------------------
+if (upp <= g.yres + 100){
+glPushMatrix();
+glColor3ub(255, 255, 255);
+glTranslatef(g.xres/2, upp, 0.0f);
+upp = upp + 12;
+glEnable(GL_ALPHA_TEST);
+glAlphaFunc(GL_GREATER, 0.0f);
+glColor4ub(255,255,255,255);
+//
+glBindTexture(GL_TEXTURE_2D, g.ptimeid);
+//make texture coordinates based on frame number.
+float ptx11 = 0.0f + (float)((g.frameno-1) % 2) * ((500.0f/2.0f)/500.0f);
+float ptx22 = ptx11 + ((500.0f/2.0f)/500.0f);
+//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+//	float tx22 = tx11 + (1.0f/3.0f);
+
+//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+//	float ty11 = 0.0f ;
+//	float ty22 =  1.0f;
+float pty11 = 1.0f ;
+float pty22 = pty11 + 1;
+float pww = g.xres/11;
+float phh = g.yres/11;
+glBegin(GL_QUADS);
+glTexCoord2f(ptx11, pty22); glVertex2f(-pww, -phh);
+glTexCoord2f(ptx11, pty11); glVertex2f(-pww,  phh);
+glTexCoord2f(ptx22, pty11); glVertex2f( pww,  phh);
+glTexCoord2f(ptx22, pty22); glVertex2f( pww, -phh);
+glEnd();
+glBindTexture(GL_TEXTURE_2D, 0);
+glDisable(GL_ALPHA_TEST);
+//
+if (g.show_boxes) {
+    //Show the sprite's bounding box
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(-pww, -phh);
+    glVertex2f(-pww,  phh);
+    glVertex2f( pww,  phh);
+    glVertex2f( pww, -phh);
+    glEnd();
+}
+glPopMatrix();
+}
 //i}
 }
 
@@ -1116,7 +1212,7 @@ void renderTitle()
     glBindTexture(GL_TEXTURE_2D, 0);
     // camerax += 0.00275;
 
-
+usleep(20000);
 glPushMatrix();
 glColor3ub(255, 255, 255);
 glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);

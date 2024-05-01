@@ -167,7 +167,8 @@ class Image {
     title("imgs/ce.png"),
     punch("imgs/punch.ppm"),
     // punch("imgs/pawnch.png"),
-    idle("imgs/idle.png");
+    idle("imgs/idle.png"),
+    bomb("imgs/bomb.png");
 
     struct Vector {
 	float x,y,z;
@@ -226,6 +227,7 @@ class Global {
 	unsigned int ttid;
 	unsigned int idleid;
 	unsigned int punchid;
+	unsigned int bombid;
 	//unsigned int nameid;
 
 	Flt gravity;
@@ -696,6 +698,28 @@ void init_opengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tv.width, tv.height,
 	    0, GL_RGBA, GL_UNSIGNED_BYTE, data4);
     delete [] data4;
+    //--------------------------------------------TV BOMB----------------------------------------------[
+    unsigned char *data8 = new unsigned char [bomb.width * bomb.height * 4];
+    for (int i=0; i<bomb.height; i++) {
+	for (int j=0; j<bomb.width; j++) {
+	    int offset  = i*bomb.width*3 + j*3;
+	    int offset2 = i*bomb.width*4 + j*4;
+	    data8[offset2+0] = bomb.data[offset+0];
+	    data8[offset2+1] = bomb.data[offset+1];
+	    data8[offset2+2] = bomb.data[offset+2];
+	    data8[offset2+3] =
+		((unsigned char)bomb.data[offset+0] != 255 ||
+		 (unsigned char)bomb.data[offset+1] != 0 ||
+		 (unsigned char)bomb.data[offset+2] != 0) ? 255 : 0;
+	}
+    }
+    glGenTextures(1, &g.bombid);
+    glBindTexture(GL_TEXTURE_2D, g.bombid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bomb.width, bomb.height,
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data8);
+    delete [] data8;
     //------------------------------------------------------------------------------------------------------------------------------------
     unsigned char *data5 = new unsigned char [idle.width * idle.height * 4];
     for (int i=0; i<idle.height; i++) {
@@ -1093,6 +1117,56 @@ void renderTitle()
     // camerax += 0.00275;
 
 
+glPushMatrix();
+glColor3ub(255, 255, 255);
+glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+//           x         y         z
+//
+//set alpha test
+glEnable(GL_ALPHA_TEST);
+//transparent if alpha value is greater than 0.0
+glAlphaFunc(GL_GREATER, 0.0f);
+//Set 4-channels of color intensity
+glColor4ub(255,255,255,255);
+//
+glBindTexture(GL_TEXTURE_2D, g.bombid);
+//make texture coordinates based on frame number.
+float tx11 = 0.0f + (float)((g.frameno-1) % 2) * ((200.0f/2.0f)/200.0f);
+float tx22 = tx11 + ((200.0f/2.0f)/200.0f);
+//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+//	float tx22 = tx11 + (1.0f/3.0f);
+
+//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+//	float ty11 = 0.0f ;
+//	float ty22 =  1.0f;
+float ty11 = 1.0f ;
+float ty22 = ty11 + 1;
+float ww = g.xres/6;
+float hh = g.yres/5;
+glBegin(GL_QUADS);
+glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
+glEnd();
+glBindTexture(GL_TEXTURE_2D, 0);
+glDisable(GL_ALPHA_TEST);
+//
+if (g.show_boxes) {
+    //Show the sprite's bounding box
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(-ww, -hh);
+    glVertex2f(-ww,  hh);
+    glVertex2f( ww,  hh);
+    glVertex2f( ww, -hh);
+    glEnd();
+}
+glPopMatrix();
+//i}
+
+
+
 
 
     /*    glPushMatrix();
@@ -1177,5 +1251,4 @@ void renderTitle()
 }
 glPopMatrix();*/
 }
-
 

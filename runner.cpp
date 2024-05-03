@@ -996,7 +996,6 @@ void render()
 	glPushMatrix();
 	glColor3ub(255, 255, 255);
 
-
 	//if (g.keys[XK_space] == 1){
 	//if (g.keys[XK_w] == 1){
 	//   jump += 0.5;
@@ -1048,6 +1047,65 @@ void render()
 	    glVertex2f(-w,  h);
 	    glVertex2f( w,  h);
 	    glVertex2f( w, -h);
+	    glEnd();
+	}
+	glPopMatrix();
+
+    glPushMatrix();
+	glColor3ub(255, 255, 255);
+
+
+	//if (g.keys[XK_space] == 1){
+	//if (g.keys[XK_w] == 1){
+	//   jump += 0.5;
+	//}
+	// printf("%f\n", jump);
+	glTranslatef((g.xres/3.2), (g.yres/shake)+jump, 0.0f);
+	//           x         y         z
+	//}
+	//set alpha test
+	glEnable(GL_ALPHA_TEST);
+	//transparent if alpha value is greater than 0.0
+	glAlphaFunc(GL_GREATER, 0.0f);
+	//Set 4-channels of color intensity
+	glColor4ub(255,255,255,95);
+	//
+	glBindTexture(GL_TEXTURE_2D, g.boostid);
+	//make texture coordinates based on frame number.
+	float btx1 = 0.0f + (float)((g.frameno-1) % 9) * ((900.0f/9.0f)/900.0f);
+	float btx2 = btx1 + ((900.0f/9.0f)/900.0f);
+	//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+	float bty1 = 1.0f ;
+	float bty2 = bty1 + 1;
+	float bw = g.xres/10;//size w
+	float bh = g.yres/8;//size h
+	glBegin(GL_QUADS);
+
+	if (g.keys[XK_a] == 0){//face sprite right
+	    glTexCoord2f(btx1, bty2); glVertex2f(-bw, -bh);
+	    glTexCoord2f(btx1, bty1); glVertex2f(-bw,  bh);
+	    glTexCoord2f(btx2, bty1); glVertex2f( bw,  bh);
+	    glTexCoord2f(btx2, bty2); glVertex2f( bw, -bh);
+	}
+	if (g.keys[XK_a] == 1){//face sprite left
+	    glTexCoord2f(btx1, bty2); glVertex2f(bw, -bh);
+	    glTexCoord2f(btx1, bty1); glVertex2f(bw,  bh);
+	    glTexCoord2f(btx2, bty1); glVertex2f( -bw,  bh);
+	    glTexCoord2f(btx2, bty2); glVertex2f( -bw, -bh);
+	}
+
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_ALPHA_TEST);
+	//
+	if (g.show_boxes) {
+	    //Show the sprite's bounding box
+	    glColor3ub(255, 255, 0);
+	    glBegin(GL_LINE_LOOP);
+	    glVertex2f(-bw, -bh);
+	    glVertex2f(-bw,  bh);
+	    glVertex2f( bw,  bh);
+	    glVertex2f( bw, -bh);
 	    glEnd();
 	}
 	glPopMatrix();

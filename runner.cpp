@@ -168,13 +168,14 @@ class Image {
     punch("imgs/punch.ppm"),
     // punch("imgs/pawnch.png"),
     idle("imgs/idle.png"),
+    idletv("imgs/idletv.png"),
     boost("imgs/speed.png"),
     ptime("imgs/ptime.png"),
     bomb("imgs/bomb.png");
 
-    struct Vector {
-	float x,y,z;
-    };
+struct Vector {
+    float x,y,z;
+};
 
 typedef double Flt;
 struct Box {
@@ -228,6 +229,7 @@ class Global {
 	unsigned int tvid;
 	unsigned int ttid;
 	unsigned int idleid;
+	unsigned int idletvid;
 	unsigned int punchid;
 	unsigned int bombid;
 	unsigned int boostid;
@@ -724,7 +726,31 @@ void init_opengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bomb.width, bomb.height,
 	    0, GL_RGBA, GL_UNSIGNED_BYTE, data8);
     delete [] data8;
-    //------------------------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------IDLETV------------------------------------------------------------------------
+
+    unsigned char *data11 = new unsigned char [idletv.width * idletv.height * 4];
+    for (int i=0; i<idletv.height; i++) {
+	for (int j=0; j<idletv.width; j++) {
+	    int offset  = i*idletv.width*3 + j*3;
+	    int offset2 = i*idletv.width*4 + j*4;
+	    data11[offset2+0] = idletv.data[offset+0];
+	    data11[offset2+1] = idletv.data[offset+1];
+	    data11[offset2+2] = idletv.data[offset+2];
+	    data11[offset2+3] =
+		((unsigned char)idletv.data[offset+0] != 255 ||
+		 (unsigned char)idletv.data[offset+1] != 0 ||
+		 (unsigned char)idletv.data[offset+2] != 0) ? 255 : 0;
+	}
+    }
+    glGenTextures(1, &g.idletvid);
+    glBindTexture(GL_TEXTURE_2D, g.idletvid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, idletv.width, idletv.height,
+	    0, GL_RGBA, GL_UNSIGNED_BYTE, data11);
+    delete [] data11;
+
+    //--------------------------------------------------------IDLE---------------------------------------------------------------------------
     unsigned char *data5 = new unsigned char [idle.width * idle.height * 4];
     for (int i=0; i<idle.height; i++) {
 	for (int j=0; j<idle.width; j++) {
@@ -961,24 +987,196 @@ void render()
     jumping = 0;
     //if (jump >= 110.99){
     //jump = jump - 3;
-//}
-printf("%f\n", jump);
-//Draw man.
-//----------------------------------------------------------------------------------------------------
-//if(moving == 1){
-if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
+    //}
+    printf("%f\n", jump);
+    //Draw man.
+    //----------------------------------------------------------------------------------------------------
+    //if(moving == 1){
+    if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
+	glPushMatrix();
+	glColor3ub(255, 255, 255);
+
+
+	//if (g.keys[XK_space] == 1){
+	//if (g.keys[XK_w] == 1){
+	//   jump += 0.5;
+	//}
+	// printf("%f\n", jump);
+	glTranslatef((g.xres/3.2), (g.yres/shake)+jump, 0.0f);
+	//           x         y         z
+	//}
+	//set alpha test
+	glEnable(GL_ALPHA_TEST);
+	//transparent if alpha value is greater than 0.0
+	glAlphaFunc(GL_GREATER, 0.0f);
+	//Set 4-channels of color intensity
+	glColor4ub(255,255,255,255);
+	//
+	glBindTexture(GL_TEXTURE_2D, g.spriteid);
+	//make texture coordinates based on frame number.
+	float tx1 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+	float tx2 = tx1 + ((300.0f/3.0f)/300.0f);
+	//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+	float ty1 = 1.0f ;
+	float ty2 = ty1 + 1;
+	float w = g.xres/10;//size w
+	float h = g.yres/8;//size h
+	glBegin(GL_QUADS);
+
+	if (g.keys[XK_a] == 0){//face sprite right
+	    glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
+	    glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
+	    glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
+	    glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
+	}
+	if (g.keys[XK_a] == 1){//face sprite left
+	    glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
+	    glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
+	    glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
+	    glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
+	}
+
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_ALPHA_TEST);
+	//
+	if (g.show_boxes) {
+	    //Show the sprite's bounding box
+	    glColor3ub(255, 255, 0);
+	    glBegin(GL_LINE_LOOP);
+	    glVertex2f(-w, -h);
+	    glVertex2f(-w,  h);
+	    glVertex2f( w,  h);
+	    glVertex2f( w, -h);
+	    glEnd();
+	}
+	glPopMatrix();
+    }
+    //----------------------------------------------------------------------------------------------------
+    //if(moving == 0){
+    if (g.keys[XK_d] == 0 && g.keys[XK_a] == 0){
+	glPushMatrix();
+	glColor3ub(255, 255, 255);
+	glTranslatef((g.xres/3.2), (g.yres/shake) + jump, 0.0f);
+	// glTranslatef((g.xres - 55), (g.yres/shake), 0.0f);
+	//           x         y         z
+	//set alpha test
+	glEnable(GL_ALPHA_TEST);
+	//transparent if alpha value is greater than 0.0
+	glAlphaFunc(GL_GREATER, 0.0f);
+	//Set 4-channels of color intensity
+	glColor4ub(255,255,255,255);
+	//
+	glBindTexture(GL_TEXTURE_2D, g.idleid);
+	//make texture coordinates based on frame number.
+	// float itx1 = 0.0f + (float)((g.frameno-1) % 21) * ((2100.0f/21.0f)/2100.0f);
+	// float itx2 = itx1 + ((2100.0f/21.0f)/2100.0f);
+	float spriteSheetWidth = 1100.0f;
+	float spriteWidth = spriteSheetWidth / 11.0f;
+	//float itx1 = 0.0;
+	//float itx2 = 0.0;
+	//if (g.frameno > 21){
+	//    itx1 = 0.0f + (float)((g.frameno + 1) % 21) * (spriteWidth / spriteSheetWidth);
+	// itx2 = itx1 + (spriteWidth / spriteSheetWidth);
+	//}
+	//else{
+	//float itx1 = 0.0f + (float)(((g.frameno - 1)*0.5f) % 11) * (spriteWidth / spriteSheetWidth);
+	float itx1 = 0.0f + (float)((g.frameno - 1) % 11) * (spriteWidth / spriteSheetWidth);
+	usleep(20000);
+	float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
+	//}
+	//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+	float ity1 = 1.0f ;
+	float ity2 = ity1 + 1;
+	float iw = g.xres/10;//size w
+	float ih = g.yres/8;//size h
+	glBegin(GL_QUADS);
+
+	if (g.keys[XK_a] == 0){//face sprite right
+	    glTexCoord2f(itx1, ity2); glVertex2f(-iw, -ih);
+	    glTexCoord2f(itx1, ity1); glVertex2f(-iw,  ih);
+	    glTexCoord2f(itx2, ity1); glVertex2f( iw,  ih);
+	    glTexCoord2f(itx2, ity2); glVertex2f( iw, -ih);
+	}
+	if (g.keys[XK_a] == 1){//face sprite left
+	    glTexCoord2f(itx1, ity2); glVertex2f(iw, -ih);
+	    glTexCoord2f(itx1, ity1); glVertex2f(iw,  ih);
+	    glTexCoord2f(itx2, ity1); glVertex2f( -iw,  ih);
+	    glTexCoord2f(itx2, ity2); glVertex2f( -iw, -ih);
+	}
+
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_ALPHA_TEST);
+	//
+	if (g.show_boxes) {
+	    //Show the sprite's bounding box
+	    glColor3ub(255, 255, 0);
+	    glBegin(GL_LINE_LOOP);
+	    glVertex2f(-iw, -ih);
+	    glVertex2f(-iw,  ih);
+	    glVertex2f( iw,  ih);
+	    glVertex2f( iw, -ih);
+	    glEnd();
+	}
+	glPopMatrix();
+	//for the tv
+	glPushMatrix();
+	glColor3ub(255, 255, 255);
+	glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+	//           x         y         z
+	//
+	//set alpha test
+	glEnable(GL_ALPHA_TEST);
+	//transparent if alpha value is greater than 0.0
+	glAlphaFunc(GL_GREATER, 0.0f);
+	//Set 4-channels of color intensity
+	glColor4ub(255,255,255,255);
+	//
+	glBindTexture(GL_TEXTURE_2D, g.idletvid);
+	//make texture coordinates based on frame number.
+	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+	float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
+	//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+	//	float tx22 = tx11 + (1.0f/3.0f);
+
+	//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+	//	float ty11 = 0.0f ;
+	//	float ty22 =  1.0f;
+	float ty11 = 1.0f ;
+	float ty22 = ty11 + 1;
+	float ww = g.xres/6;
+	float hh = g.yres/5;
+	glBegin(GL_QUADS);
+	glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+	glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+	glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+	glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_ALPHA_TEST);
+	//
+	if (g.show_boxes) {
+	    //Show the sprite's bounding box
+	    glColor3ub(255, 255, 0);
+	    glBegin(GL_LINE_LOOP);
+	    glVertex2f(-ww, -hh);
+	    glVertex2f(-ww,  hh);
+	    glVertex2f( ww,  hh);
+	    glVertex2f( ww, -hh);
+	    glEnd();
+	}
+	glPopMatrix();
+
+    }
+    //----------------------------------------------------------------------------------------------------
+    //for the tv
+    if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
     glPushMatrix();
     glColor3ub(255, 255, 255);
-
-
-    //if (g.keys[XK_space] == 1){
-    //if (g.keys[XK_w] == 1){
-    //   jump += 0.5;
-    //}
-    // printf("%f\n", jump);
-    glTranslatef((g.xres/3.2), (g.yres/shake)+jump, 0.0f);
+    glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
     //           x         y         z
-    //}
+    //
     //set alpha test
     glEnable(GL_ALPHA_TEST);
     //transparent if alpha value is greater than 0.0
@@ -986,30 +1184,25 @@ if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
     //Set 4-channels of color intensity
     glColor4ub(255,255,255,255);
     //
-    glBindTexture(GL_TEXTURE_2D, g.spriteid);
+    glBindTexture(GL_TEXTURE_2D, g.tvid);
     //make texture coordinates based on frame number.
-    float tx1 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
-    float tx2 = tx1 + ((300.0f/3.0f)/300.0f);
+    float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+    float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
+    //	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+    //	float tx22 = tx11 + (1.0f/3.0f);
+
     //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
-    float ty1 = 1.0f ;
-    float ty2 = ty1 + 1;
-    float w = g.xres/10;//size w
-    float h = g.yres/8;//size h
+    //	float ty11 = 0.0f ;
+    //	float ty22 =  1.0f;
+    float ty11 = 1.0f ;
+    float ty22 = ty11 + 1;
+    float ww = g.xres/6;
+    float hh = g.yres/5;
     glBegin(GL_QUADS);
-
-    if (g.keys[XK_a] == 0){//face sprite right
-	glTexCoord2f(tx1, ty2); glVertex2f(-w, -h);
-	glTexCoord2f(tx1, ty1); glVertex2f(-w,  h);
-	glTexCoord2f(tx2, ty1); glVertex2f( w,  h);
-	glTexCoord2f(tx2, ty2); glVertex2f( w, -h);
-    }
-    if (g.keys[XK_a] == 1){//face sprite left
-	glTexCoord2f(tx1, ty2); glVertex2f(w, -h);
-	glTexCoord2f(tx1, ty1); glVertex2f(w,  h);
-	glTexCoord2f(tx2, ty1); glVertex2f( -w,  h);
-	glTexCoord2f(tx2, ty2); glVertex2f( -w, -h);
-    }
-
+    glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+    glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+    glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+    glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_ALPHA_TEST);
@@ -1018,178 +1211,61 @@ if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
 	//Show the sprite's bounding box
 	glColor3ub(255, 255, 0);
 	glBegin(GL_LINE_LOOP);
-	glVertex2f(-w, -h);
-	glVertex2f(-w,  h);
-	glVertex2f( w,  h);
-	glVertex2f( w, -h);
+	glVertex2f(-ww, -hh);
+	glVertex2f(-ww,  hh);
+	glVertex2f( ww,  hh);
+	glVertex2f( ww, -hh);
 	glEnd();
     }
     glPopMatrix();
-}
-//----------------------------------------------------------------------------------------------------
-//if(moving == 0){
-if (g.keys[XK_d] == 0 && g.keys[XK_a] == 0){
-    glPushMatrix();
-    glColor3ub(255, 255, 255);
-    glTranslatef((g.xres/3.2), (g.yres/shake) + jump, 0.0f);
-    // glTranslatef((g.xres - 55), (g.yres/shake), 0.0f);
-    //           x         y         z
-    //set alpha test
-    glEnable(GL_ALPHA_TEST);
-    //transparent if alpha value is greater than 0.0
-    glAlphaFunc(GL_GREATER, 0.0f);
-    //Set 4-channels of color intensity
-    glColor4ub(255,255,255,255);
-    //
-    glBindTexture(GL_TEXTURE_2D, g.idleid);
-    //make texture coordinates based on frame number.
-    // float itx1 = 0.0f + (float)((g.frameno-1) % 21) * ((2100.0f/21.0f)/2100.0f);
-    // float itx2 = itx1 + ((2100.0f/21.0f)/2100.0f);
-    float spriteSheetWidth = 1100.0f;
-    float spriteWidth = spriteSheetWidth / 11.0f;
-    //float itx1 = 0.0;
-    //float itx2 = 0.0;
-    //if (g.frameno > 21){
-    //    itx1 = 0.0f + (float)((g.frameno + 1) % 21) * (spriteWidth / spriteSheetWidth);
-    // itx2 = itx1 + (spriteWidth / spriteSheetWidth);
-    //}
-    //else{
-    //float itx1 = 0.0f + (float)(((g.frameno - 1)*0.5f) % 11) * (spriteWidth / spriteSheetWidth);
-    float itx1 = 0.0f + (float)((g.frameno - 1) % 11) * (spriteWidth / spriteSheetWidth);
-    usleep(20000);
-    float itx2 = itx1 + (spriteWidth / spriteSheetWidth);
-    //}
-    //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
-    float ity1 = 1.0f ;
-    float ity2 = ity1 + 1;
-    float iw = g.xres/10;//size w
-    float ih = g.yres/8;//size h
-    glBegin(GL_QUADS);
-
-    if (g.keys[XK_a] == 0){//face sprite right
-	glTexCoord2f(itx1, ity2); glVertex2f(-iw, -ih);
-	glTexCoord2f(itx1, ity1); glVertex2f(-iw,  ih);
-	glTexCoord2f(itx2, ity1); glVertex2f( iw,  ih);
-	glTexCoord2f(itx2, ity2); glVertex2f( iw, -ih);
-    }
-    if (g.keys[XK_a] == 1){//face sprite left
-	glTexCoord2f(itx1, ity2); glVertex2f(iw, -ih);
-	glTexCoord2f(itx1, ity1); glVertex2f(iw,  ih);
-	glTexCoord2f(itx2, ity1); glVertex2f( -iw,  ih);
-	glTexCoord2f(itx2, ity2); glVertex2f( -iw, -ih);
     }
 
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_ALPHA_TEST);
-    //
-    if (g.show_boxes) {
-	//Show the sprite's bounding box
-	glColor3ub(255, 255, 0);
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(-iw, -ih);
-	glVertex2f(-iw,  ih);
-	glVertex2f( iw,  ih);
-	glVertex2f( iw, -ih);
+    //PIZZA TIME-------------------------------------------------------------
+    if (upp <= g.yres + 100){
+	glPushMatrix();
+	glColor3ub(255, 255, 255);
+	glTranslatef(g.xres/2, upp, 0.0f);
+	upp = upp + 6;
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER, 0.0f);
+	glColor4ub(255,255,255,255);
+	//
+	glBindTexture(GL_TEXTURE_2D, g.ptimeid);
+	//make texture coordinates based on frame number.
+	float ptx11 = 0.0f + (float)((g.frameno-1) % 2) * ((500.0f/2.0f)/500.0f);
+	float ptx22 = ptx11 + ((500.0f/2.0f)/500.0f);
+	//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+	//	float tx22 = tx11 + (1.0f/3.0f);
+
+	//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+	//	float ty11 = 0.0f ;
+	//	float ty22 =  1.0f;
+	float pty11 = 1.0f ;
+	float pty22 = pty11 + 1;
+	float pww = g.xres/9;
+	float phh = g.yres/7;
+	glBegin(GL_QUADS);
+	glTexCoord2f(ptx11, pty22); glVertex2f(-pww, -phh);
+	glTexCoord2f(ptx11, pty11); glVertex2f(-pww,  phh);
+	glTexCoord2f(ptx22, pty11); glVertex2f( pww,  phh);
+	glTexCoord2f(ptx22, pty22); glVertex2f( pww, -phh);
 	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_ALPHA_TEST);
+	//
+	if (g.show_boxes) {
+	    //Show the sprite's bounding box
+	    glColor3ub(255, 255, 0);
+	    glBegin(GL_LINE_LOOP);
+	    glVertex2f(-pww, -phh);
+	    glVertex2f(-pww,  phh);
+	    glVertex2f( pww,  phh);
+	    glVertex2f( pww, -phh);
+	    glEnd();
+	}
+	glPopMatrix();
     }
-    glPopMatrix();
-}
-//----------------------------------------------------------------------------------------------------
-//for the tv
-glPushMatrix();
-glColor3ub(255, 255, 255);
-glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
-//           x         y         z
-//
-//set alpha test
-glEnable(GL_ALPHA_TEST);
-//transparent if alpha value is greater than 0.0
-glAlphaFunc(GL_GREATER, 0.0f);
-//Set 4-channels of color intensity
-glColor4ub(255,255,255,255);
-//
-glBindTexture(GL_TEXTURE_2D, g.tvid);
-//make texture coordinates based on frame number.
-float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
-float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
-//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
-//	float tx22 = tx11 + (1.0f/3.0f);
-
-//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
-//	float ty11 = 0.0f ;
-//	float ty22 =  1.0f;
-float ty11 = 1.0f ;
-float ty22 = ty11 + 1;
-float ww = g.xres/6;
-float hh = g.yres/5;
-glBegin(GL_QUADS);
-glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
-glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
-glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
-glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
-glEnd();
-glBindTexture(GL_TEXTURE_2D, 0);
-glDisable(GL_ALPHA_TEST);
-//
-if (g.show_boxes) {
-    //Show the sprite's bounding box
-    glColor3ub(255, 255, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(-ww, -hh);
-    glVertex2f(-ww,  hh);
-    glVertex2f( ww,  hh);
-    glVertex2f( ww, -hh);
-    glEnd();
-}
-glPopMatrix();
-
-//PIZZA TIME-------------------------------------------------------------
-if (upp <= g.yres + 100){
-glPushMatrix();
-glColor3ub(255, 255, 255);
-glTranslatef(g.xres/2, upp, 0.0f);
-upp = upp + 12;
-glEnable(GL_ALPHA_TEST);
-glAlphaFunc(GL_GREATER, 0.0f);
-glColor4ub(255,255,255,255);
-//
-glBindTexture(GL_TEXTURE_2D, g.ptimeid);
-//make texture coordinates based on frame number.
-float ptx11 = 0.0f + (float)((g.frameno-1) % 2) * ((500.0f/2.0f)/500.0f);
-float ptx22 = ptx11 + ((500.0f/2.0f)/500.0f);
-//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
-//	float tx22 = tx11 + (1.0f/3.0f);
-
-//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
-//	float ty11 = 0.0f ;
-//	float ty22 =  1.0f;
-float pty11 = 1.0f ;
-float pty22 = pty11 + 1;
-float pww = g.xres/9;
-float phh = g.yres/7;
-glBegin(GL_QUADS);
-glTexCoord2f(ptx11, pty22); glVertex2f(-pww, -phh);
-glTexCoord2f(ptx11, pty11); glVertex2f(-pww,  phh);
-glTexCoord2f(ptx22, pty11); glVertex2f( pww,  phh);
-glTexCoord2f(ptx22, pty22); glVertex2f( pww, -phh);
-glEnd();
-glBindTexture(GL_TEXTURE_2D, 0);
-glDisable(GL_ALPHA_TEST);
-//
-if (g.show_boxes) {
-    //Show the sprite's bounding box
-    glColor3ub(255, 255, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(-pww, -phh);
-    glVertex2f(-pww,  phh);
-    glVertex2f( pww,  phh);
-    glVertex2f( pww, -phh);
-    glEnd();
-}
-glPopMatrix();
-}
-//i}
+    //i}
 }
 
 
@@ -1212,54 +1288,54 @@ void renderTitle()
     glBindTexture(GL_TEXTURE_2D, 0);
     // camerax += 0.00275;
 
-usleep(20000);
-glPushMatrix();
-glColor3ub(255, 255, 255);
-glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
-//           x         y         z
-//
-//set alpha test
-glEnable(GL_ALPHA_TEST);
-//transparent if alpha value is greater than 0.0
-glAlphaFunc(GL_GREATER, 0.0f);
-//Set 4-channels of color intensity
-glColor4ub(255,255,255,255);
-//
-glBindTexture(GL_TEXTURE_2D, g.bombid);
-//make texture coordinates based on frame number.
-float tx11 = 0.0f + (float)((g.frameno-1) % 2) * ((200.0f/2.0f)/200.0f);
-float tx22 = tx11 + ((200.0f/2.0f)/200.0f);
-//	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
-//	float tx22 = tx11 + (1.0f/3.0f);
+    usleep(20000);
+    glPushMatrix();
+    glColor3ub(255, 255, 255);
+    glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+    //           x         y         z
+    //
+    //set alpha test
+    glEnable(GL_ALPHA_TEST);
+    //transparent if alpha value is greater than 0.0
+    glAlphaFunc(GL_GREATER, 0.0f);
+    //Set 4-channels of color intensity
+    glColor4ub(255,255,255,255);
+    //
+    glBindTexture(GL_TEXTURE_2D, g.bombid);
+    //make texture coordinates based on frame number.
+    float tx11 = 0.0f + (float)((g.frameno-1) % 2) * ((200.0f/2.0f)/200.0f);
+    float tx22 = tx11 + ((200.0f/2.0f)/200.0f);
+    //	float tx11 = 0.0f + (float)((g.frameno-1) % 3) * (1.0f/3.0f);
+    //	float tx22 = tx11 + (1.0f/3.0f);
 
-//float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
-//	float ty11 = 0.0f ;
-//	float ty22 =  1.0f;
-float ty11 = 1.0f ;
-float ty22 = ty11 + 1;
-float ww = g.xres/6;
-float hh = g.yres/5;
-glBegin(GL_QUADS);
-glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
-glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
-glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
-glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
-glEnd();
-glBindTexture(GL_TEXTURE_2D, 0);
-glDisable(GL_ALPHA_TEST);
-//
-if (g.show_boxes) {
-    //Show the sprite's bounding box
-    glColor3ub(255, 255, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(-ww, -hh);
-    glVertex2f(-ww,  hh);
-    glVertex2f( ww,  hh);
-    glVertex2f( ww, -hh);
+    //float ty1 = 0.0f + (float)((g.frameno-1) / 1) * 1;
+    //	float ty11 = 0.0f ;
+    //	float ty22 =  1.0f;
+    float ty11 = 1.0f ;
+    float ty22 = ty11 + 1;
+    float ww = g.xres/6;
+    float hh = g.yres/5;
+    glBegin(GL_QUADS);
+    glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+    glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+    glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+    glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
     glEnd();
-}
-glPopMatrix();
-//i}
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+    //
+    if (g.show_boxes) {
+	//Show the sprite's bounding box
+	glColor3ub(255, 255, 0);
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(-ww, -hh);
+	glVertex2f(-ww,  hh);
+	glVertex2f( ww,  hh);
+	glVertex2f( ww, -hh);
+	glEnd();
+    }
+    glPopMatrix();
+    //i}
 
 
 
@@ -1344,7 +1420,7 @@ glPopMatrix();
     glVertex2f( ww,  hh);
     glVertex2f( ww, 0);
     glEnd();
-}
+    }
 glPopMatrix();*/
 }
 

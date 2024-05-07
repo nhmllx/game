@@ -1022,6 +1022,44 @@ bool iskeypress = false;
     }
     //[END OF SHAKE]-----
    }
+    //------------health---------------------------------------------------------------------------
+void hats(float offsetx, float offsety)
+{
+    glPushMatrix();
+glTranslatef(g.xres * offsetx, g.yres * offsety, 0.0f);
+glEnable(GL_ALPHA_TEST);
+glAlphaFunc(GL_GREATER, 0.0f);
+glColor4ub(255, 255, 255, 255);
+glBindTexture(GL_TEXTURE_2D, g.healthid);
+float sw = 1216.0f;
+int numSprites = 19;
+float spriteWidth = sw / numSprites;
+int spriteIndex = (g.frameno - 1) % numSprites;
+float tx111 = spriteIndex * spriteWidth / sw;
+float tx222 = (spriteIndex + 1) * spriteWidth / sw;
+float ty111 = 0.0f;
+float ty222 = 1.0f;
+float www = g.xres / 23;
+float hhh = g.yres / 10;
+glBegin(GL_QUADS);
+glTexCoord2f(tx111, ty222); glVertex2f(-www, -hhh);
+glTexCoord2f(tx111, ty111); glVertex2f(-www, hhh);
+glTexCoord2f(tx222, ty111); glVertex2f(www, hhh);
+glTexCoord2f(tx222, ty222); glVertex2f(www, -hhh);
+glEnd();
+glBindTexture(GL_TEXTURE_2D, 0);
+glDisable(GL_ALPHA_TEST);
+if (g.show_boxes) {
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(-www, -hhh);
+    glVertex2f(-www, hhh);
+    glVertex2f(www, hhh);
+    glVertex2f(www, -hhh);
+    glEnd();
+}
+glPopMatrix();
+}
 void render()
 {
     shakef();
@@ -1067,8 +1105,8 @@ void render()
     }
 
     Rect r;
-    r.bot = g.yres - 20;
-    r.left = 10;
+    r.bot = g.yres*0.5;
+    r.left = g.xres * 0.85;
     r.center = 0;
     int score = 25;
     ggprint8b(&r, 16, 0x00ffffff, "speed : %i\n", score*2);
@@ -1332,9 +1370,8 @@ if (g.show_boxes) {
 
 glPopMatrix();
 }
-    //----------------------------------------------------------------------------------------
+    //-------------idletv---------------------------------------------------------------------------
     glPopMatrix();
-    //for the tv
     glPushMatrix();
     glColor3ub(255, 255, 255);
     glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
@@ -1366,6 +1403,49 @@ glPopMatrix();
         glEnd();
     }
     glPopMatrix();
+    //------------health---------------------------------------------------------------------------
+/*    glPushMatrix();
+glTranslatef(g.xres * 0.05, g.yres * 0.95, 0.0f);
+glEnable(GL_ALPHA_TEST);
+glAlphaFunc(GL_GREATER, 0.0f);
+glColor4ub(255, 255, 255, 255);
+glBindTexture(GL_TEXTURE_2D, g.healthid);
+float sw = 1216.0f;
+int numSprites = 19;
+float spriteWidth = sw / numSprites;
+int spriteIndex = (g.frameno - 1) % numSprites;
+float tx111 = spriteIndex * spriteWidth / sw;
+float tx222 = (spriteIndex + 1) * spriteWidth / sw;
+float ty111 = 0.0f;
+float ty222 = 1.0f;
+float www = g.xres / 12;
+float hhh = g.yres / 8;
+glBegin(GL_QUADS);
+glTexCoord2f(tx111, ty222); glVertex2f(-www, -hhh);
+glTexCoord2f(tx111, ty111); glVertex2f(-www, hhh);
+glTexCoord2f(tx222, ty111); glVertex2f(www, hhh);
+glTexCoord2f(tx222, ty222); glVertex2f(www, -hhh);
+glEnd();
+glBindTexture(GL_TEXTURE_2D, 0);
+glDisable(GL_ALPHA_TEST);
+if (g.show_boxes) {
+    glColor3ub(255, 255, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(-www, -hhh);
+    glVertex2f(-www, hhh);
+    glVertex2f(www, hhh);
+    glVertex2f(www, -hhh);
+    glEnd();
+}
+glPopMatrix();*/
+
+    //use if statement to  chekc if man got hit
+    hats(0.05, 0.92);//health 6
+    hats(0.12, 0.92);//health 5
+    hats(0.19, 0.92);//health 4
+    hats(0.05, 0.82);//health 3
+    hats(0.12, 0.82);//health 2
+    hats(0.19, 0.82);//health 1
     //----------------------------------------------------------------------------------------------------
     //for the tv
     if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){

@@ -987,13 +987,14 @@ unsigned int tt[5] = {g.t1id, g.t2id, g.t3id, g.t4id, g.t5id};
 // tarr[5] = {"imgs/t1.png","imgs/t2.png","imgs/t3.png","imgs/t4.png","imgs/t5.png"},
 bool keypress = false;
 bool iskeypress = false;
+int lives = 6;
 
 //double jumper(double x){
 //  x=(x+9)/1.07;
 //return x;
 //}
-    //[SHAKE]-----
-   void shakef()
+//[SHAKE]-----
+void shakef()
 {
     if (g.keys[XK_t] == 1)
     {
@@ -1021,44 +1022,44 @@ bool iskeypress = false;
         shakecount = 22;
     }
     //[END OF SHAKE]-----
-   }
-    //------------health---------------------------------------------------------------------------
+}
+//------------health---------------------------------------------------------------------------
 void hats(float offsetx, float offsety)
 {
     glPushMatrix();
-glTranslatef(g.xres * offsetx, g.yres * offsety, 0.0f);
-glEnable(GL_ALPHA_TEST);
-glAlphaFunc(GL_GREATER, 0.0f);
-glColor4ub(255, 255, 255, 255);
-glBindTexture(GL_TEXTURE_2D, g.healthid);
-float sw = 1216.0f;
-int numSprites = 19;
-float spriteWidth = sw / numSprites;
-int spriteIndex = (g.frameno - 1) % numSprites;
-float tx111 = spriteIndex * spriteWidth / sw;
-float tx222 = (spriteIndex + 1) * spriteWidth / sw;
-float ty111 = 0.0f;
-float ty222 = 1.0f;
-float www = g.xres / 23;
-float hhh = g.yres / 10;
-glBegin(GL_QUADS);
-glTexCoord2f(tx111, ty222); glVertex2f(-www, -hhh);
-glTexCoord2f(tx111, ty111); glVertex2f(-www, hhh);
-glTexCoord2f(tx222, ty111); glVertex2f(www, hhh);
-glTexCoord2f(tx222, ty222); glVertex2f(www, -hhh);
-glEnd();
-glBindTexture(GL_TEXTURE_2D, 0);
-glDisable(GL_ALPHA_TEST);
-if (g.show_boxes) {
-    glColor3ub(255, 255, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(-www, -hhh);
-    glVertex2f(-www, hhh);
-    glVertex2f(www, hhh);
-    glVertex2f(www, -hhh);
+    glTranslatef(g.xres * offsetx, g.yres * offsety, 0.0f);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_GREATER, 0.0f);
+    glColor4ub(255, 255, 255, 255);
+    glBindTexture(GL_TEXTURE_2D, g.healthid);
+    float sw = 1216.0f;
+    int numSprites = 19;
+    float spriteWidth = sw / numSprites;
+    int spriteIndex = (g.frameno - 1) % numSprites;
+    float tx111 = spriteIndex * spriteWidth / sw;
+    float tx222 = (spriteIndex + 1) * spriteWidth / sw;
+    float ty111 = 0.0f;
+    float ty222 = 1.0f;
+    float www = g.xres / 23;
+    float hhh = g.yres / 10;
+    glBegin(GL_QUADS);
+    glTexCoord2f(tx111, ty222); glVertex2f(-www, -hhh);
+    glTexCoord2f(tx111, ty111); glVertex2f(-www, hhh);
+    glTexCoord2f(tx222, ty111); glVertex2f(www, hhh);
+    glTexCoord2f(tx222, ty222); glVertex2f(www, -hhh);
     glEnd();
-}
-glPopMatrix();
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_ALPHA_TEST);
+    if (g.show_boxes) {
+        glColor3ub(255, 255, 0);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(-www, -hhh);
+        glVertex2f(-www, hhh);
+        glVertex2f(www, hhh);
+        glVertex2f(www, -hhh);
+        glEnd();
+    }
+    glPopMatrix();
 }
 void render()
 {
@@ -1144,7 +1145,7 @@ void render()
     //----------------------------------------------------------------------------------------------------
     //if(moving == 1){
     if ((g.keys[XK_d] == 1 || g.keys[XK_a] == 1) && g.keys[XK_g] != 1){
-    // (g.keys[XK_d] == 0 && g.keys[XK_a] == 0 && g.keys[XK_g] != 1){
+        // (g.keys[XK_d] == 0 && g.keys[XK_a] == 0 && g.keys[XK_g] != 1){
         glPushMatrix();
         glColor3ub(255, 255, 255);
 
@@ -1297,12 +1298,12 @@ void render()
         glPopMatrix();
     }
     //-------------------------------------------------taunt---------------------------------------
-   // if (g.keys[XK_g] == 1){
-     //   keypress= true;
-   // } else {
+    // if (g.keys[XK_g] == 1){
+    //   keypress= true;
+    // } else {
     //    keypress = false;
-  //  }
-  //  if (keypress && !iskeypress){
+    //  }
+    //  if (keypress && !iskeypress){
     if (g.keys[XK_g] == 1){
 
         glPushMatrix();
@@ -1335,41 +1336,41 @@ void render()
 
             glPopMatrix();
         }
-glPushMatrix();
-glColor3ub(255, 255, 255);
-     glTranslatef((g.xres/3.2), (g.yres/shake) + jump, 0.0f);
+        glPushMatrix();
+        glColor3ub(255, 255, 255);
+        glTranslatef((g.xres/3.2), (g.yres/shake) + jump, 0.0f);
 
-glEnable(GL_ALPHA_TEST);
-glAlphaFunc(GL_GREATER, 0.0f);
-glColor4ub(255, 255, 255, 255);
-glBindTexture(GL_TEXTURE_2D, g.tauntid);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glColor4ub(255, 255, 255, 255);
+        glBindTexture(GL_TEXTURE_2D, g.tauntid);
 
-float spriteSheetWidth = 546.0f;
-float spriteWidth = spriteSheetWidth / 4.0f; // Assuming 4 sprites in one row
-float tx1 = 0.0f + (float)((g.frameno - 1) % 4) * (spriteWidth / spriteSheetWidth);
-float tx2 = tx1 + (spriteWidth / spriteSheetWidth);
-float ty1 = 0.0f; // Assuming sprites start from the top
-float ty2 = 1.0f; // Assuming sprites end at the bottom
+        float spriteSheetWidth = 546.0f;
+        float spriteWidth = spriteSheetWidth / 4.0f; // Assuming 4 sprites in one row
+        float tx1 = 0.0f + (float)((g.frameno - 1) % 4) * (spriteWidth / spriteSheetWidth);
+        float tx2 = tx1 + (spriteWidth / spriteSheetWidth);
+        float ty1 = 0.0f; // Assuming sprites start from the top
+        float ty2 = 1.0f; // Assuming sprites end at the bottom
 
-glBegin(GL_QUADS);
-    glTexCoord2f(tx1, ty2); glVertex2f(-gw, -gh);
-    glTexCoord2f(tx1, ty1); glVertex2f(-gw,  gh);
-    glTexCoord2f(tx2, ty1); glVertex2f( gw,  gh);
-    glTexCoord2f(tx2, ty2); glVertex2f( gw, -gh);
-glEnd();
-glBindTexture(GL_TEXTURE_2D, 0);
-glDisable(GL_ALPHA_TEST);
-if (g.show_boxes) {
-    glColor3ub(255, 255, 0);
-    glBegin(GL_LINE_LOOP);
+        glBegin(GL_QUADS);
+        glTexCoord2f(tx1, ty2); glVertex2f(-gw, -gh);
+        glTexCoord2f(tx1, ty1); glVertex2f(-gw,  gh);
+        glTexCoord2f(tx2, ty1); glVertex2f( gw,  gh);
+        glTexCoord2f(tx2, ty2); glVertex2f( gw, -gh);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_ALPHA_TEST);
+        if (g.show_boxes) {
+            glColor3ub(255, 255, 0);
+            glBegin(GL_LINE_LOOP);
             glVertex2f(-gw, -gh);
             glVertex2f(-gw,  gh);
             glVertex2f( gw,  gh);
             glVertex2f( gw, -gh);
-}
+        }
 
-glPopMatrix();
-}
+        glPopMatrix();
+    }
     //-------------idletv---------------------------------------------------------------------------
     glPopMatrix();
     glPushMatrix();
@@ -1404,48 +1405,52 @@ glPopMatrix();
     }
     glPopMatrix();
     //------------health---------------------------------------------------------------------------
-/*    glPushMatrix();
-glTranslatef(g.xres * 0.05, g.yres * 0.95, 0.0f);
-glEnable(GL_ALPHA_TEST);
-glAlphaFunc(GL_GREATER, 0.0f);
-glColor4ub(255, 255, 255, 255);
-glBindTexture(GL_TEXTURE_2D, g.healthid);
-float sw = 1216.0f;
-int numSprites = 19;
-float spriteWidth = sw / numSprites;
-int spriteIndex = (g.frameno - 1) % numSprites;
-float tx111 = spriteIndex * spriteWidth / sw;
-float tx222 = (spriteIndex + 1) * spriteWidth / sw;
-float ty111 = 0.0f;
-float ty222 = 1.0f;
-float www = g.xres / 12;
-float hhh = g.yres / 8;
-glBegin(GL_QUADS);
-glTexCoord2f(tx111, ty222); glVertex2f(-www, -hhh);
-glTexCoord2f(tx111, ty111); glVertex2f(-www, hhh);
-glTexCoord2f(tx222, ty111); glVertex2f(www, hhh);
-glTexCoord2f(tx222, ty222); glVertex2f(www, -hhh);
-glEnd();
-glBindTexture(GL_TEXTURE_2D, 0);
-glDisable(GL_ALPHA_TEST);
-if (g.show_boxes) {
-    glColor3ub(255, 255, 0);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(-www, -hhh);
-    glVertex2f(-www, hhh);
-    glVertex2f(www, hhh);
-    glVertex2f(www, -hhh);
-    glEnd();
-}
-glPopMatrix();*/
 
     //use if statement to  chekc if man got hit
-    hats(0.05, 0.92);//health 6
-    hats(0.12, 0.92);//health 5
-    hats(0.19, 0.92);//health 4
-    hats(0.05, 0.82);//health 3
-    hats(0.12, 0.82);//health 2
-    hats(0.19, 0.82);//health 1
+    if (lives == 6){
+        hats(0.05, 0.92);//health 6
+        hats(0.12, 0.92);//health 5
+        hats(0.19, 0.92);//health 4
+        hats(0.05, 0.82);//health 3
+        hats(0.12, 0.82);//health 2
+        hats(0.19, 0.82);//health 1
+    }
+    if (lives == 5){
+        hats(0.05, 0.92);//health 6
+        hats(0.12, 0.92);//health 5
+        hats(0.19, 0.92);//health 4
+        hats(0.05, 0.82);//health 3
+        hats(0.12, 0.82);//health 2
+    }
+    if (lives == 4){
+        hats(0.05, 0.92);//health 6
+        hats(0.12, 0.92);//health 5
+        hats(0.19, 0.92);//health 4
+        hats(0.05, 0.82);//health 3
+    }
+    if (lives == 3){
+        hats(0.05, 0.92);//health 6
+        hats(0.12, 0.92);//health 5
+        hats(0.19, 0.92);//health 4
+    }
+    if (lives == 2){
+        hats(0.05, 0.92);//health 6
+        hats(0.12, 0.92);//health 5
+    }
+    if (lives == 1){
+        hats(0.05, 0.92);//health 6
+    }
+
+    if (g.keys[XK_m] == 1){
+            lives = lives - 1;
+    }
+    if (g.keys[XK_n] == 1){
+            lives = lives + 1;
+    }
+    if (lives > 6){lives = 6;}
+    if (lives < 0){lives = 0;}
+    printf("lives: %i\n ", lives);
+
     //----------------------------------------------------------------------------------------------------
     //for the tv
     if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
@@ -1516,55 +1521,55 @@ glPopMatrix();*/
         }
         glPopMatrix();
     }
-}
-
-void renderTitle()
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3ub(255, 255, 255);
-    glBindTexture(GL_TEXTURE_2D, g.ttid);
-    static float camerax = 0.0f;
-    glBegin(GL_QUADS);
-    glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
-    glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
-    glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
-    glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    usleep(20000);
-    glPushMatrix();
-    glColor3ub(255, 255, 255);
-    glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0f);
-    glColor4ub(255,255,255,255);
-    glBindTexture(GL_TEXTURE_2D, g.bombid);
-    float tx11 = 0.0f + (float)((g.frameno-1) % 2) * ((200.0f/2.0f)/200.0f);
-    float tx22 = tx11 + ((200.0f/2.0f)/200.0f);
-    float ty11 = 1.0f ;
-    float ty22 = ty11 + 1;
-    float ww = g.xres/6;
-    float hh = g.yres/5;
-    glBegin(GL_QUADS);
-    glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
-    glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
-    glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
-    glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_ALPHA_TEST);
-    //
-    if (g.show_boxes) {
-        //Show the sprite's bounding box
-        glColor3ub(255, 255, 0);
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(-ww, -hh);
-        glVertex2f(-ww,  hh);
-        glVertex2f( ww,  hh);
-        glVertex2f( ww, -hh);
-        glEnd();
     }
-    glPopMatrix();
-}
+
+    void renderTitle()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor3ub(255, 255, 255);
+        glBindTexture(GL_TEXTURE_2D, g.ttid);
+        static float camerax = 0.0f;
+        glBegin(GL_QUADS);
+        glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+        glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+        glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+        glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        usleep(20000);
+        glPushMatrix();
+        glColor3ub(255, 255, 255);
+        glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glColor4ub(255,255,255,255);
+        glBindTexture(GL_TEXTURE_2D, g.bombid);
+        float tx11 = 0.0f + (float)((g.frameno-1) % 2) * ((200.0f/2.0f)/200.0f);
+        float tx22 = tx11 + ((200.0f/2.0f)/200.0f);
+        float ty11 = 1.0f ;
+        float ty22 = ty11 + 1;
+        float ww = g.xres/6;
+        float hh = g.yres/5;
+        glBegin(GL_QUADS);
+        glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+        glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+        glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+        glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_ALPHA_TEST);
+        //
+        if (g.show_boxes) {
+            //Show the sprite's bounding box
+            glColor3ub(255, 255, 0);
+            glBegin(GL_LINE_LOOP);
+            glVertex2f(-ww, -hh);
+            glVertex2f(-ww,  hh);
+            glVertex2f( ww,  hh);
+            glVertex2f( ww, -hh);
+            glEnd();
+        }
+        glPopMatrix();
+    }
 

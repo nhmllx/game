@@ -174,6 +174,7 @@ class Image {
     ptime("imgs/ptime.png"),
     health("imgs/health.png"),
     taunt("imgs/taunt.png"),
+    ded("imgs/ded.png"),
     // tarr[5] = {"imgs/t1.png","imgs/t2.png","imgs/t3.png","imgs/t4.png","imgs/t5.png"},
     t1("imgs/t1.png"),
     t2("imgs/t2.png"),
@@ -245,6 +246,7 @@ class Global {
         unsigned int ptimeid;
         unsigned int healthid;
         unsigned int tauntid;
+        unsigned int dedid;
         unsigned int t1id; //not animated
         unsigned int t2id; //not animated
         unsigned int t3id; //not animated
@@ -307,6 +309,7 @@ void init_opengl(void);
 void physics(void);
 void render(void);
 void renderTitle(void);
+void renderDeath(void);
 
 
 void *spriteThread(void *arg)
@@ -664,6 +667,12 @@ void init_opengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, title.width, title.height, 0,
             GL_RGB, GL_UNSIGNED_BYTE, title.data);
     //-----------------------------------------------------------------------------------------------------------------------------
+    glGenTextures(1, &g.dedid);
+    glBindTexture(GL_TEXTURE_2D, g.dedid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, ded.width, ded.height, 0,
+            GL_RGB, GL_UNSIGNED_BYTE, ded.data);
     //-----title name------------------------------------------------------------------------------------------------------------------------
     /*glGenTextures(1, &g.nameid);
       glBindTexture(GL_TEXTURE_2D, g.nameid);
@@ -1442,87 +1451,91 @@ void render()
     }
 
     if (g.keys[XK_m] == 1){
-            lives = lives - 1;
+        lives = lives - 1;
     }
     if (g.keys[XK_n] == 1){
-            lives = lives + 1;
+        lives = lives + 1;
     }
+    if (lives == 0){
+        renderDeath();
+    }
+
+
     if (lives > 6){lives = 6;}
     if (lives < 0){lives = 0;}
     printf("lives: %i\n ", lives);
 
-    //----------------------------------------------------------------------------------------------------
-    //for the tv
-    if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
-        glPushMatrix();
-        glColor3ub(255, 255, 255);
-        glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(255,255,255,255);
-        glBindTexture(GL_TEXTURE_2D, g.tvid);
-        float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
-        float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
-        float ty11 = 1.0f ;
-        float ty22 = ty11 + 1;
-        float ww = g.xres/6;
-        float hh = g.yres/5;
-        glBegin(GL_QUADS);
-        glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
-        glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
-        glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
-        glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_ALPHA_TEST);
-        if (g.show_boxes) {
-            glColor3ub(255, 255, 0);
-            glBegin(GL_LINE_LOOP);
-            glVertex2f(-ww, -hh);
-            glVertex2f(-ww,  hh);
-            glVertex2f( ww,  hh);
-            glVertex2f( ww, -hh);
-            glEnd();
+            //----------------------------------------------------------------------------------------------------
+            //for the tv
+            if (g.keys[XK_d] == 1 || g.keys[XK_a] == 1){
+                glPushMatrix();
+                glColor3ub(255, 255, 255);
+                glTranslatef(g.xres*0.85, g.yres*0.85, 0.0f);
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glColor4ub(255,255,255,255);
+                glBindTexture(GL_TEXTURE_2D, g.tvid);
+                float tx11 = 0.0f + (float)((g.frameno-1) % 3) * ((300.0f/3.0f)/300.0f);
+                float tx22 = tx11 + ((300.0f/3.0f)/300.0f);
+                float ty11 = 1.0f ;
+                float ty22 = ty11 + 1;
+                float ww = g.xres/6;
+                float hh = g.yres/5;
+                glBegin(GL_QUADS);
+                glTexCoord2f(tx11, ty22); glVertex2f(-ww, -hh);
+                glTexCoord2f(tx11, ty11); glVertex2f(-ww,  hh);
+                glTexCoord2f(tx22, ty11); glVertex2f( ww,  hh);
+                glTexCoord2f(tx22, ty22); glVertex2f( ww, -hh);
+                glEnd();
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_ALPHA_TEST);
+                if (g.show_boxes) {
+                    glColor3ub(255, 255, 0);
+                    glBegin(GL_LINE_LOOP);
+                    glVertex2f(-ww, -hh);
+                    glVertex2f(-ww,  hh);
+                    glVertex2f( ww,  hh);
+                    glVertex2f( ww, -hh);
+                    glEnd();
+                }
+                glPopMatrix();
+            }
+            //PIZZA TIME-------------------------------------------------------------
+            if (upp <= g.yres + 600){
+                glPushMatrix();
+                glColor3ub(255, 255, 255);
+                glTranslatef(g.xres/2, upp, 0.0f);
+                upp = upp + 12;
+                glEnable(GL_ALPHA_TEST);
+                glAlphaFunc(GL_GREATER, 0.0f);
+                glColor4ub(255,255,255,255);
+                glBindTexture(GL_TEXTURE_2D, g.ptimeid);
+                float ptx11 = 0.0f + (float)((g.frameno-1) % 2) * ((500.0f/2.0f)/500.0f);
+                float ptx22 = ptx11 + ((500.0f/2.0f)/500.0f);
+                float pty11 = 1.0f ;
+                float pty22 = pty11 + 1;
+                float pww = g.xres/9;
+                float phh = g.yres/7;
+                glBegin(GL_QUADS);
+                glTexCoord2f(ptx11, pty22); glVertex2f(-pww, -phh);
+                glTexCoord2f(ptx11, pty11); glVertex2f(-pww,  phh);
+                glTexCoord2f(ptx22, pty11); glVertex2f( pww,  phh);
+                glTexCoord2f(ptx22, pty22); glVertex2f( pww, -phh);
+                glEnd();
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_ALPHA_TEST);
+                if (g.show_boxes) {
+                    glColor3ub(255, 255, 0);
+                    glBegin(GL_LINE_LOOP);
+                    glVertex2f(-pww, -phh);
+                    glVertex2f(-pww,  phh);
+                    glVertex2f( pww,  phh);
+                    glVertex2f( pww, -phh);
+                    glEnd();
+                }
+                glPopMatrix();
+            }
         }
-        glPopMatrix();
-    }
-    //PIZZA TIME-------------------------------------------------------------
-    if (upp <= g.yres + 600){
-        glPushMatrix();
-        glColor3ub(255, 255, 255);
-        glTranslatef(g.xres/2, upp, 0.0f);
-        upp = upp + 12;
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glColor4ub(255,255,255,255);
-        glBindTexture(GL_TEXTURE_2D, g.ptimeid);
-        float ptx11 = 0.0f + (float)((g.frameno-1) % 2) * ((500.0f/2.0f)/500.0f);
-        float ptx22 = ptx11 + ((500.0f/2.0f)/500.0f);
-        float pty11 = 1.0f ;
-        float pty22 = pty11 + 1;
-        float pww = g.xres/9;
-        float phh = g.yres/7;
-        glBegin(GL_QUADS);
-        glTexCoord2f(ptx11, pty22); glVertex2f(-pww, -phh);
-        glTexCoord2f(ptx11, pty11); glVertex2f(-pww,  phh);
-        glTexCoord2f(ptx22, pty11); glVertex2f( pww,  phh);
-        glTexCoord2f(ptx22, pty22); glVertex2f( pww, -phh);
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_ALPHA_TEST);
-        if (g.show_boxes) {
-            glColor3ub(255, 255, 0);
-            glBegin(GL_LINE_LOOP);
-            glVertex2f(-pww, -phh);
-            glVertex2f(-pww,  phh);
-            glVertex2f( pww,  phh);
-            glVertex2f( pww, -phh);
-            glEnd();
-        }
-        glPopMatrix();
-    }
-    }
-
     void renderTitle()
     {
         glClear(GL_COLOR_BUFFER_BIT);
@@ -1573,3 +1586,17 @@ void render()
         glPopMatrix();
     }
 
+    void renderDeath()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor3ub(255, 255, 255);
+        glBindTexture(GL_TEXTURE_2D, g.dedid);
+        static float camerax = 0.0f;
+        glBegin(GL_QUADS);
+        glTexCoord2f(camerax+0, 1); glVertex2i(0,      0);
+        glTexCoord2f(camerax+0, 0); glVertex2i(0,      g.yres);
+        glTexCoord2f(camerax+1, 0); glVertex2i(g.xres, g.yres);
+        glTexCoord2f(camerax+1, 1); glVertex2i(g.xres, 0);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }

@@ -171,6 +171,13 @@ class Image {
     idletv("imgs/idletv.png"),
     boost("imgs/speed.png"),
     ptime("imgs/ptime.png"),
+    health("imgs/health.png"),
+    taunt("imgs/taunt.png"),
+    t1("imgs/t1.png"),
+    t2("imgs/t2.png"),
+    t3("imgs/t3.png"),
+    t4("imgs/t4.png"),
+    t5("imgs/t5.png"),
     bomb("imgs/bomb.png");
 
 struct Vector {
@@ -234,6 +241,13 @@ class Global {
 	unsigned int bombid;
 	unsigned int boostid;
 	unsigned int ptimeid;
+	unsigned int healthid;
+	unsigned int tauntid;
+	unsigned int t1id; //not animated
+	unsigned int t2id; //not animated
+	unsigned int t3id; //not animated
+	unsigned int t4id; //not animated
+	unsigned int t5id; //not animated
 	//unsigned int nameid;
 
 	Flt gravity;
@@ -621,6 +635,23 @@ void init_opengl(void)
     glEnable(GL_TEXTURE_2D);
     initialize_fonts();
 
+    //-----------------------------------------------------------------------------------------------------------------------------
+    glGenTextures(1, &g.healthid);
+    glBindTexture(GL_TEXTURE_2D, g.tauntid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, health.width, health.height, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, health.data);
+
+    //-----------------------------------------------------------------------------------------------------------------------------
+    glGenTextures(1, &g.tauntid);
+    glBindTexture(GL_TEXTURE_2D, g.tauntid);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, taunt.width, taunt.height, 0,
+	    GL_RGB, GL_UNSIGNED_BYTE, taunt.data);
+
+    //-----------------------------------------------------------------------------------------------------------------------------
     //--------------------------background pizza---------------------------------------------------------------------------------------------------
     glGenTextures(1, &g.texid);
     glBindTexture(GL_TEXTURE_2D, g.texid);
@@ -883,8 +914,7 @@ void render()
 {
     //playSound(1);
 
-    // mover can scroll the sprite, shake can screen shake the sprite
-    //[SHAKER CODE]-----
+    //[SHAKE]-----
     if (g.keys[XK_t] == 1)
     {
 	shaker = 1;
@@ -910,7 +940,7 @@ void render()
 	rshake = 1.0;
 	shakecount = 22;
     }
-    //[END OF SHAKER CODE]-----
+    //[END OF SHAKE]-----
 
     //[THE BACKGROUND]--------
     glClear(GL_COLOR_BUFFER_BIT);
@@ -988,7 +1018,7 @@ void render()
     //if (jump >= 110.99){
     //jump = jump - 3;
     //}
-    printf("%f\n", jump);
+    //printf("%f\n", jump);
     //Draw man.
     //----------------------------------------------------------------------------------------------------
     //if(moving == 1){
@@ -1279,11 +1309,11 @@ void render()
     }
 
     //PIZZA TIME-------------------------------------------------------------
-    if (upp <= g.yres + 100){
+    if (upp <= g.yres + 600){
 	glPushMatrix();
 	glColor3ub(255, 255, 255);
 	glTranslatef(g.xres/2, upp, 0.0f);
-	upp = upp + 6;
+	upp = upp + 12;
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
 	glColor4ub(255,255,255,255);
